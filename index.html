@@ -1,239 +1,79 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ACRC Imóveis — Controle de Chaves</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C8102E">
+<meta name="theme-color" content="#1B2E4B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACRC Chaves">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
+  --red:#C8102E;--red-dark:#a00d24;--red-muted:#f9e5e8;
   --red:#E8651A;--red-dark:#c45214;--red-muted:#fdeee5;
   --navy:#1B2E4B;--navy-dark:#142237;--navy-light:#243d61;
-  --bg:#f2f2f0;--surface:#fff;--surface2:#f7f7f5;--surface3:#efefec;
-  --border:#e4e4e0;--border2:#d0d0cc;
-  --text:#191917;--text2:#525250;--text3:#969692;
-  --green:#257a35;--green-bg:#e6f4ea;
-  --amber:#8a5c08;--amber-bg:#fef3dc;
-  --crimson:#a12828;--crimson-bg:#fceaea;
-  --blue:#1a56a0;--blue-bg:#e8f0fb;
-  --purple:#6b3fa0;--purple-bg:#f0eafa;
-  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
-  --r:10px;--r-lg:16px;--r-xl:22px;
-  --sh:0 1px 2px rgba(0,0,0,.06),0 3px 10px rgba(0,0,0,.07);
-}
-html,body{height:100%;overflow:hidden;background:var(--bg)}
-body{font-family:var(--font);color:var(--text);font-size:15px;line-height:1.5}
-
+--bg:#f2f2f0;--surface:#fff;--surface2:#f7f7f5;--surface3:#efefec;
+--border:#e4e4e0;--border2:#d0d0cc;
+--text:#191917;--text2:#525250;--text3:#969692;
+@@ -34,10 +35,10 @@
 .app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;background:var(--surface);box-shadow:0 0 60px rgba(0,0,0,.15)}
 
 /* HEADER */
+.header{background:var(--red);padding-top:env(safe-area-inset-top);flex-shrink:0;position:relative;overflow:hidden}
+.header::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;background:rgba(255,255,255,.06);border-radius:50%;pointer-events:none}
 .header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);padding-top:env(safe-area-inset-top);flex-shrink:0;position:relative;overflow:hidden}
+.header::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;background:rgba(232,101,26,.15);border-radius:50%;pointer-events:none}.header::before{content:"";position:absolute;left:-20px;bottom:-20px;width:80px;height:80px;background:rgba(232,101,26,.08);border-radius:50%;pointer-events:none}
 .header-inner{padding:13px 14px;display:flex;align-items:center;gap:11px;position:relative}
-.logo-box{width:44px;height:44px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-box{width:38px;height:38px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-box{width:44px;height:44px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.logo-box svg{width:24px;height:24px}
 .header-text{flex:1;min-width:0}
-.header-text h1{font-size:15px;font-weight:600;color:#fff}
-.header-text p{font-size:11px;color:rgba(255,255,255,.65)}
-
-/* TABS */
-.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{flex:1;padding:9px 2px 8px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:10.5px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent}
-.tab svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2}
-.tab.active{color:var(--red);border-bottom-color:var(--red)}
-
-/* SCREENS */
-.screens{flex:1;overflow:hidden;position:relative}
-.screen{position:absolute;inset:0;overflow-y:auto;display:none;flex-direction:column}
-.screen.active{display:flex}
-
-/* SEARCH + LIST */
-.topbar{padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
-.search-wrap{position:relative}
-.search-wrap input{width:100%;padding:8px 10px 8px 33px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;outline:none}
-.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;stroke:var(--text3);fill:none;stroke-width:2}
-.key-list{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
-.key-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer}
-
-/* BADGES */
-.badge{font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600}
-.b-disp{background:var(--green-bg);color:var(--green)}
-.b-indisp{background:var(--crimson-bg);color:var(--crimson)}
-
-/* MODAL / SHEET */
-.backdrop{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:200;display:flex;align-items:flex-end;pointer-events:none;transition:background .25s}
-.backdrop.open{background:rgba(0,0,0,.45);pointer-events:all}
-.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;transform:translateY(100%);transition:transform .3s;padding:20px}
-.backdrop.open .sheet{transform:translateY(0)}
-
-/* FORMS */
-.field{margin-bottom:12px;display:flex;flex-direction:column;gap:5px}
-.field label{font-size:12px;font-weight:600;color:var(--text2)}
-.field input, .field select, .field textarea{padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface2)}
-.btn-primary{background:var(--red);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;width:100%}
-</style>
-</head>
-<body>
-
-<div class="app">
-  <div class="header">
-    <div class="header-inner">
-      <div class="logo-box"><span style="color:white;font-weight:bold">ACRC</span></div>
-      <div class="header-text">
-        <h1>Controle de Chaves</h1>
-        <p>ACRC Imóveis — Blumenau / SC</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('lista', this)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Chaves
-    </button>
-    <button class="tab" onclick="showTab('busca', this)">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Busca
-    </button>
-    <button class="tab" onclick="showTab('gerenciar', this)">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Gerenciar
-    </button>
-  </div>
-
-  <div class="screens">
-    <!-- TELA LISTA -->
-    <div class="screen active" id="screen-lista">
-      <div class="topbar">
-        <div class="search-wrap">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="search" id="list-q" placeholder="Buscar chave ou imóvel..." oninput="renderList()">
-        </div>
-      </div>
-      <div class="key-list" id="key-list"></div>
-    </div>
-
-    <!-- TELA BUSCA -->
-    <div class="screen" id="screen-busca">
-      <div class="topbar">
-        <input type="text" id="busca-q" placeholder="Digite a localização (ex: A1.1)" oninput="quickSearch()">
-      </div>
-      <div id="busca-body" style="padding:20px"></div>
-    </div>
-
-    <!-- TELA GERENCIAR -->
-    <div class="screen" id="screen-gerenciar">
-      <div style="padding:20px">
-        <h3>Adicionar Chaves</h3>
-        <textarea id="bulk-keys" placeholder="Um código por linha" style="width:100%;height:100px;margin:10px 0"></textarea>
-        <button class="btn-primary" onclick="addKeys()">Importar Chaves</button>
-      </div>
-    </div>
-  </div>
+.header-text h1{font-size:15px;font-weight:600;color:#fff;letter-spacing:-.01em}
+@@ -222,12 +223,13 @@
+<div class="header">
+<div class="header-inner">
+<div class="logo-box">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="24" rx="5" fill="#C8102E"/>
+          <circle cx="10" cy="11" r="3.2" stroke="white" stroke-width="1.7"/>
+          <circle cx="10" cy="11" r="1.1" fill="white"/>
+          <path d="M12.8 13.2L20 18" stroke="white" stroke-width="1.7" stroke-linecap="round"/>
+          <path d="M16.5 16.5L18 15.3M18.5 18L20 16.8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Triangle / A symbol -->
+          <polygon points="22,8 34,30 10,30" fill="#E8651A"/>
+          <!-- White A cutout -->
+          <polygon points="22,14 27,26 17,26" fill="rgba(27,46,75,0.85)"/>
+          <!-- ACRC text -->
+          <text x="22" y="40" font-family="Arial" font-weight="700" font-size="7" fill="white" text-anchor="middle" letter-spacing="1">ACRC</text>
+</svg>
 </div>
-
-<!-- MODAL EDITAR -->
-<div class="backdrop" id="modal-pdf" onclick="if(event.target===this)closeSheet('modal-pdf')">
-  <div class="sheet">
-    <h2 id="pdf-title">Gerar Comprovante</h2>
-    <div class="field">
-      <label>Nome do Responsável</label>
-      <input type="text" id="pdf-nome" placeholder="Quem está retirando?">
-    </div>
-    <div class="field">
-      <label>Observações</label>
-      <textarea id="pdf-obs"></textarea>
-    </div>
-    <button class="btn-primary" onclick="gerarPDF()">Gerar PDF e Salvar</button>
-  </div>
-</div>
-
-<script>
-let keys = JSON.parse(localStorage.getItem('acrc_chaves')) || [];
-let currentKey = null;
-
-function showTab(id, btn) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
-  btn.classList.add('active');
-}
-
-function addKeys() {
-  const input = document.getElementById('bulk-keys').value.split('\n');
-  input.forEach(loc => {
-    if(loc.trim()) {
-      keys.push({loc: loc.trim(), status: 'DISPONÍVEL', codigo: '', responsavel: ''});
-    }
-  });
-  save();
-  renderList();
-  alert('Chaves importadas!');
-}
-
-function save() {
-  localStorage.setItem('acrc_chaves', JSON.stringify(keys));
-}
-
-function renderList() {
-  const q = document.getElementById('list-q').value.toLowerCase();
-  const list = document.getElementById('key-list');
-  list.innerHTML = keys.filter(k => k.loc.toLowerCase().includes(q)).map(k => `
-    <div class="key-card" onclick="openPDF('${k.loc}')">
-      <div><strong>${k.loc}</strong><br><small>${k.responsavel || 'No local'}</small></div>
-      <div style="margin-left:auto" class="badge ${k.status==='DISPONÍVEL'?'b-disp':'b-indisp'}">${k.status}</div>
-    </div>
-  `).join('');
-}
-
-function openPDF(loc) {
-  currentKey = keys.find(k => k.loc === loc);
-  document.getElementById('pdf-title').innerText = "Chave " + loc;
-  document.getElementById('modal-pdf').classList.add('open');
-}
-
-function closeSheet(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-function gerarPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const nome = document.getElementById('pdf-nome').value;
-  
-  if(!nome) return alert("Digite o nome!");
-
-  doc.setFontSize(20);
-  doc.text("ACRC Imóveis - Recibo de Chave", 20, 20);
-  doc.setFontSize(12);
-  doc.text(`Chave: ${currentKey.loc}`, 20, 40);
-  doc.text(`Responsável: ${nome}`, 20, 50);
-  doc.text(`Data: ${new Date().toLocaleString()}`, 20, 60);
-  
-  doc.save(`recibo_${currentKey.loc}.pdf`);
-
-  // Atualiza a chave
-  currentKey.status = 'INDISPONÍVEL';
-  currentKey.responsavel = nome;
-  save();
-  renderList();
-  closeSheet('modal-pdf');
-}
-
-function quickSearch() {
-  const q = document.getElementById('busca-q').value;
-  const k = keys.find(x => x.loc === q);
-  const body = document.getElementById('busca-body');
-  if(k) {
-    body.innerHTML = `<div class="key-card"><strong>Localização: ${k.loc}</strong><br>Status: ${k.status}</div>`;
-  } else {
-    body.innerHTML = "Chave não encontrada.";
-  }
-}
-
-window.onload = renderList;
-</script>
-
-</body>
-</html>
+<div class="header-text">
+@@ -787,7 +789,7 @@ <h2>Confirmar exclusão</h2>
+const hoje = new Date().toLocaleDateString("pt-BR");
+const hora = new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+// Header bar
+    doc.setFillColor(200,16,46);
+    doc.setFillColor(27,46,75);
+doc.rect(0,0,210,28,"F");
+doc.setTextColor(255,255,255);
+doc.setFont("helvetica","bold");
+@@ -809,7 +811,7 @@ <h2>Confirmar exclusão</h2>
+doc.setTextColor(90,90,86);
+if(k.codigo) doc.text(`Código do imóvel: ${k.codigo}`,20,50);
+// Badge tipo saída
+    const saidaColors={TEMPORÁRIA:[234,248,238],DEFINITIVA:[252,234,234],"NOVO LOCATÁRIO",[254,243,220]};
+    const saidaColors={TEMPORÁRIA:[234,248,238],DEFINITIVA:[252,234,234],"NOVO LOCATÁRIO":[254,243,220]};
+const saidaTxtColors={TEMPORÁRIA:[37,122,53],DEFINITIVA:[161,40,40],"NOVO LOCATÁRIO":[138,92,8]};
+const sc=saidaColors[pdfSaida]||[240,240,240];
+const stc=saidaTxtColors[pdfSaida]||[80,80,80];
+@@ -881,7 +883,7 @@ <h2>Confirmar exclusão</h2>
+doc.text(nome,52,y+32,{align:"center"});
+doc.text("Blumenau/SC",158,y+32,{align:"center"});
+// Footer
+    doc.setFillColor(200,16,46);
+    doc.setFillColor(27,46,75);
+doc.rect(0,285,210,12,"F");
+doc.setTextColor(255,255,255);
+doc.setFontSize(8);
