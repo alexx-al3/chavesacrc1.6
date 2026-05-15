@@ -7,8 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- EmailJS para envio automático -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -51,7 +49,7 @@ body{font-family:var(--font);color:var(--text);font-size:15px;line-height:1.5}
 .screen.active{display:flex}
 
 /* SEARCH + LIST */
-.topbar{padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.topbar{padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
 .search-wrap{position:relative}
 .search-wrap input{width:100%;padding:8px 10px 8px 33px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;outline:none}
 .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;stroke:var(--text3);fill:none;stroke-width:2}
@@ -66,19 +64,14 @@ body{font-family:var(--font);color:var(--text);font-size:15px;line-height:1.5}
 /* MODAL / SHEET */
 .backdrop{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:200;display:flex;align-items:flex-end;pointer-events:none;transition:background .25s}
 .backdrop.open{background:rgba(0,0,0,.45);pointer-events:all}
-.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s;padding:20px}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;transform:translateY(100%);transition:transform .3s;padding:20px}
 .backdrop.open .sheet{transform:translateY(0)}
 
 /* FORMS */
 .field{margin-bottom:12px;display:flex;flex-direction:column;gap:5px}
 .field label{font-size:12px;font-weight:600;color:var(--text2)}
-.field input, .field select, .field textarea{padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);font-family:inherit}
-.btn-primary{background:var(--red);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;width:100%;margin-top:10px}
-.btn-admin{background:var(--navy);color:white;margin-top:20px}
-
-/* HISTORICO */
-.hist-item{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
-.hist-date{color:var(--text3);font-size:11px}
+.field input, .field select, .field textarea{padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface2)}
+.btn-primary{background:var(--red);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;width:100%}
 </style>
 </head>
 <body>
@@ -99,13 +92,13 @@ body{font-family:var(--font);color:var(--text);font-size:15px;line-height:1.5}
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Chaves
     </button>
-    <button class="tab" onclick="showTab('historico', this)">
-      <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      Histórico
+    <button class="tab" onclick="showTab('busca', this)">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Busca
     </button>
     <button class="tab" onclick="showTab('gerenciar', this)">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Admin
+      Gerenciar
     </button>
   </div>
 
@@ -121,80 +114,43 @@ body{font-family:var(--font);color:var(--text);font-size:15px;line-height:1.5}
       <div class="key-list" id="key-list"></div>
     </div>
 
-    <!-- TELA HISTÓRICO -->
-    <div class="screen" id="screen-historico">
-        <div style="padding:20px" id="hist-content"></div>
+    <!-- TELA BUSCA -->
+    <div class="screen" id="screen-busca">
+      <div class="topbar">
+        <input type="text" id="busca-q" placeholder="Digite a localização (ex: A1.1)" oninput="quickSearch()">
+      </div>
+      <div id="busca-body" style="padding:20px"></div>
     </div>
 
-    <!-- TELA GERENCIAR (ADM) -->
+    <!-- TELA GERENCIAR -->
     <div class="screen" id="screen-gerenciar">
-      <div style="padding:20px" id="adm-lock">
-        <h3>Acesso Restrito</h3>
-        <input type="password" id="adm-pass" placeholder="Senha ADM" style="width:100%; padding:10px; margin:10px 0; border:1px solid var(--border); border-radius:8px;">
-        <button class="btn-primary" onclick="unlockAdm()">Entrar</button>
-      </div>
-      <div style="padding:20px; display:none" id="adm-content">
-        <div class="field">
-            <label>E-mail de Destino (Automático)</label>
-            <input type="email" id="adm-email" placeholder="email@acrc.com.br">
-        </div>
-        <hr style="margin:20px 0; border:0; border-top:1px solid var(--border)">
+      <div style="padding:20px">
         <h3>Adicionar Chaves</h3>
-        <textarea id="bulk-keys" placeholder="Um código por linha" style="width:100%;height:100px;margin:10px 0; padding:10px; border:1px solid var(--border); border-radius:8px;"></textarea>
+        <textarea id="bulk-keys" placeholder="Um código por linha" style="width:100%;height:100px;margin:10px 0"></textarea>
         <button class="btn-primary" onclick="addKeys()">Importar Chaves</button>
-        <button class="btn-primary btn-admin" onclick="localStorage.clear(); location.reload();" style="background:var(--crimson)">Limpar Todo Sistema</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL GERAR PDF / SAÍDA -->
+<!-- MODAL EDITAR -->
 <div class="backdrop" id="modal-pdf" onclick="if(event.target===this)closeSheet('modal-pdf')">
   <div class="sheet">
-    <h2 id="pdf-title">Registrar Movimentação</h2>
-    
-    <div class="field">
-      <label>Destinatário</label>
-      <select id="pdf-destinatario">
-          <option value="Inquilino">Inquilino</option>
-          <option value="Proprietário">Proprietário</option>
-          <option value="Terceiro/Prestador">Terceiro/Prestador</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Tipo de Saída</label>
-      <select id="pdf-saida">
-          <option value="Temporária">Temporária</option>
-          <option value="Definitiva">Definitiva</option>
-      </select>
-    </div>
-
+    <h2 id="pdf-title">Gerar Comprovante</h2>
     <div class="field">
       <label>Nome do Responsável</label>
-      <input type="text" id="pdf-nome" placeholder="Nome completo">
+      <input type="text" id="pdf-nome" placeholder="Quem está retirando?">
     </div>
-
-    <div class="field">
-      <label>Foto da Chave/Documento (Anexo E-mail)</label>
-      <input type="file" id="pdf-foto" accept="image/*" capture="camera">
-    </div>
-
     <div class="field">
       <label>Observações</label>
       <textarea id="pdf-obs"></textarea>
     </div>
-    
-    <button class="btn-primary" id="btn-salvar" onclick="processarSaida()">Gerar PDF e Notificar</button>
+    <button class="btn-primary" onclick="gerarPDF()">Gerar PDF e Salvar</button>
   </div>
 </div>
 
 <script>
-// Configurações iniciais
-emailjs.init("SEU_USER_ID_EMAILJS"); // Opcional: Requer conta no emailjs.com
-
 let keys = JSON.parse(localStorage.getItem('acrc_chaves')) || [];
-let history = JSON.parse(localStorage.getItem('acrc_history')) || [];
 let currentKey = null;
 
 function showTab(id, btn) {
@@ -202,64 +158,33 @@ function showTab(id, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   btn.classList.add('active');
-  if(id === 'historico') renderHistory();
-}
-
-function unlockAdm() {
-    if(document.getElementById('adm-pass').value === 'acrc2024') {
-        document.getElementById('adm-lock').style.display = 'none';
-        document.getElementById('adm-content').style.display = 'block';
-        document.getElementById('adm-email').value = localStorage.getItem('acrc_adm_email') || '';
-    } else {
-        alert('Senha incorreta');
-    }
 }
 
 function addKeys() {
   const input = document.getElementById('bulk-keys').value.split('\n');
   input.forEach(loc => {
     if(loc.trim()) {
-      if(!keys.find(k => k.loc === loc.trim())) {
-        keys.push({loc: loc.trim(), status: 'DISPONÍVEL', responsavel: '', data: ''});
-      }
+      keys.push({loc: loc.trim(), status: 'DISPONÍVEL', codigo: '', responsavel: ''});
     }
   });
   save();
   renderList();
-  alert('Chaves atualizadas!');
+  alert('Chaves importadas!');
 }
 
 function save() {
   localStorage.setItem('acrc_chaves', JSON.stringify(keys));
-  localStorage.setItem('acrc_history', JSON.stringify(history));
-  localStorage.setItem('acrc_adm_email', document.getElementById('adm-email').value);
 }
 
 function renderList() {
   const q = document.getElementById('list-q').value.toLowerCase();
   const list = document.getElementById('key-list');
-  list.innerHTML = keys.filter(k => k.loc.toLowerCase().includes(q))
-    .sort((a,b) => a.loc.localeCompare(b.loc))
-    .map(k => `
+  list.innerHTML = keys.filter(k => k.loc.toLowerCase().includes(q)).map(k => `
     <div class="key-card" onclick="openPDF('${k.loc}')">
-      <div><strong>${k.loc}</strong><br><small>${k.responsavel ? 'Com: ' + k.responsavel : 'No local'}</small></div>
+      <div><strong>${k.loc}</strong><br><small>${k.responsavel || 'No local'}</small></div>
       <div style="margin-left:auto" class="badge ${k.status==='DISPONÍVEL'?'b-disp':'b-indisp'}">${k.status}</div>
     </div>
   `).join('');
-}
-
-function renderHistory() {
-    const container = document.getElementById('hist-content');
-    if(history.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text3)">Nenhum histórico registrado.</p>';
-        return;
-    }
-    container.innerHTML = '<h3>Histórico Recente</h3>' + history.map(h => `
-        <div class="hist-item">
-            <strong>${h.chave}</strong> - ${h.tipo} por ${h.resp}<br>
-            <span class="hist-date">${h.data}</span>
-        </div>
-    `).reverse().join('');
 }
 
 function openPDF(loc) {
@@ -272,87 +197,38 @@ function closeSheet(id) {
   document.getElementById(id).classList.remove('open');
 }
 
-// Converter imagem para Base64 para "anexar"
-function getBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-}
-
-async function processarSaida() {
+function gerarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   const nome = document.getElementById('pdf-nome').value;
-  const dest = document.getElementById('pdf-destinatario').value;
-  const tipoSaida = document.getElementById('pdf-saida').value;
-  const fotoFile = document.getElementById('pdf-foto').files[0];
-  const obs = document.getElementById('pdf-obs').value;
-  const emailDestino = localStorage.getItem('acrc_adm_email');
   
-  if(!nome) return alert("Digite o nome do responsável!");
-  if(!emailDestino) return alert("Configure o e-mail de destino na aba Admin!");
+  if(!nome) return alert("Digite o nome!");
 
-  document.getElementById('btn-salvar').innerText = "Processando...";
-  document.getElementById('btn-salvar').disabled = true;
+  doc.setFontSize(20);
+  doc.text("ACRC Imóveis - Recibo de Chave", 20, 20);
+  doc.setFontSize(12);
+  doc.text(`Chave: ${currentKey.loc}`, 20, 40);
+  doc.text(`Responsável: ${nome}`, 20, 50);
+  doc.text(`Data: ${new Date().toLocaleString()}`, 20, 60);
+  
+  doc.save(`recibo_${currentKey.loc}.pdf`);
 
-  try {
-      let fotoBase64 = "";
-      if(fotoFile) fotoBase64 = await getBase64(fotoFile);
-
-      // 1. Gerar PDF
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(20);
-      doc.text("ACRC Imóveis - Recibo de Chave", 20, 20);
-      doc.setFontSize(12);
-      doc.text(`Chave: ${currentKey.loc}`, 20, 40);
-      doc.text(`Destinatário: ${dest}`, 20, 50);
-      doc.text(`Tipo de Saída: ${tipoSaida}`, 20, 60);
-      doc.text(`Responsável: ${nome}`, 20, 70);
-      doc.text(`Data: ${new Date().toLocaleString()}`, 20, 80);
-      doc.text(`Obs: ${obs}`, 20, 90);
-      doc.save(`recibo_${currentKey.loc}.pdf`);
-
-      // 2. Envio Automático simulado (Aqui dispararia para o EmailJS)
-      console.log("Enviando e-mail automático para: " + emailDestino);
-      // Exemplo de payload para EmailJS:
-      // emailjs.send("service_id", "template_id", { to_email: emailDestino, key: currentKey.loc, user: nome, photo: fotoBase64 });
-
-      // 3. Atualizar Status e Histórico
-      currentKey.status = 'INDISPONÍVEL';
-      currentKey.responsavel = nome;
-      history.push({
-          chave: currentKey.loc,
-          tipo: tipoSaida,
-          resp: nome,
-          data: new Date().toLocaleString()
-      });
-
-      save();
-      renderList();
-      alert('Registro concluído! E-mail enviado para ' + emailDestino);
-      closeSheet('modal-pdf');
-
-  } catch (err) {
-      alert("Erro ao processar: " + err);
-  } finally {
-      document.getElementById('btn-salvar').innerText = "Gerar PDF e Salvar";
-      document.getElementById('btn-salvar').disabled = false;
-  }
+  // Atualiza a chave
+  currentKey.status = 'INDISPONÍVEL';
+  currentKey.responsavel = nome;
+  save();
+  renderList();
+  closeSheet('modal-pdf');
 }
 
 function quickSearch() {
-  const q = document.getElementById('busca-q').value.toUpperCase();
-  const k = keys.find(x => x.loc.toUpperCase() === q);
+  const q = document.getElementById('busca-q').value;
+  const k = keys.find(x => x.loc === q);
   const body = document.getElementById('busca-body');
   if(k) {
-    body.innerHTML = `
-        <div class="key-card" onclick="openPDF('${k.loc}')">
-            <div><strong>Chave encontrada: ${k.loc}</strong><br>Status: ${k.status}</div>
-        </div>`;
+    body.innerHTML = `<div class="key-card"><strong>Localização: ${k.loc}</strong><br>Status: ${k.status}</div>`;
   } else {
-    body.innerHTML = "<p style='color:var(--text3)'>Chave não encontrada.</p>";
+    body.innerHTML = "Chave não encontrada.";
   }
 }
 
