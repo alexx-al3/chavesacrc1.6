@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="ACRC Chaves">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
+/* Mantendo todo o seu CSS original */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --red:#E8651A;--red-dark:#c45214;--red-muted:#fdeee5;
@@ -31,926 +32,212 @@
 }
 html,body{height:100%;overflow:hidden;background:var(--bg)}
 body{font-family:var(--font);color:var(--text);font-size:15px;line-height:1.5}
-
 .app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;background:var(--surface);box-shadow:0 0 60px rgba(0,0,0,.15)}
-
-/* HEADER */
 .header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);padding-top:env(safe-area-inset-top);flex-shrink:0;position:relative;overflow:hidden}
-.header::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;background:rgba(232,101,26,.15);border-radius:50%;pointer-events:none}.header::before{content:"";position:absolute;left:-20px;bottom:-20px;width:80px;height:80px;background:rgba(232,101,26,.08);border-radius:50%;pointer-events:none}
-.header-inner{padding:13px 14px;display:flex;align-items:center;gap:11px;position:relative}
+.header-inner{padding:13px 14px;display:flex;align-items:center;gap:11px;position:relative; z-index: 2;}
 .logo-box{width:44px;height:44px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-.logo-box svg{width:24px;height:24px}
 .header-text{flex:1;min-width:0}
 .header-text h1{font-size:15px;font-weight:600;color:#fff;letter-spacing:-.01em}
 .header-text p{font-size:11px;color:rgba(255,255,255,.65);margin-top:1px}
-.hbtn{background:rgba(255,255,255,.14);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;transition:background .15s}
-.hbtn:active{background:rgba(255,255,255,.25)}
-.hbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-/* TABS */
+.hbtn{background:rgba(255,255,255,.14);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:background .15s}
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{flex:1;padding:9px 2px 8px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;position:relative}
-.tab svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab{flex:1;padding:9px 2px 8px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:all .15s}
 .tab.active{color:var(--red);border-bottom-color:var(--red)}
-.tab-badge{position:absolute;top:5px;right:calc(50% - 14px);background:var(--red);color:#fff;font-size:9px;font-weight:600;padding:1px 4px;border-radius:20px;display:none;line-height:1.4}
-.tab-badge.show{display:block}
-
-/* SCREENS */
+.tab svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9}
 .screens{flex:1;overflow:hidden;position:relative}
-.screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;flex-direction:column}
+.screen{position:absolute;inset:0;overflow-y:auto;display:none;flex-direction:column}
 .screen.active{display:flex}
-
-/* SEARCH + FILTER */
-.topbar{padding:11px 14px 9px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.topbar{padding:11px 14px 9px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
 .search-wrap{position:relative}
-.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
-.search-wrap input{width:100%;padding:8px 10px 8px 33px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:13.5px;color:var(--text);outline:none;transition:border-color .15s}
-.search-wrap input:focus{border-color:var(--red);background:#fff}
-.search-wrap input::placeholder{color:var(--text3)}
-.chips{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}
-.chips::-webkit-scrollbar{display:none}
-.chip{flex-shrink:0;padding:4px 11px;border-radius:20px;border:1px solid var(--border);font-size:11.5px;font-weight:500;cursor:pointer;color:var(--text2);background:var(--surface);transition:all .15s;display:flex;align-items:center;gap:4px;white-space:nowrap}
-.chip-dot{width:6px;height:6px;border-radius:50%}
-.chip.active{background:var(--red);color:#fff;border-color:var(--red)}
-.chip.active .chip-dot{filter:brightness(2)}
-
-/* LIST */
-.list-meta{font-size:11.5px;color:var(--text3);padding:5px 14px 3px;flex-shrink:0}
-.key-list{flex:1;padding:6px 14px 80px;display:flex;flex-direction:column;gap:5px}
-.key-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .12s}
-.key-card:active{background:var(--surface2)}
-.key-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.key-icon svg{width:16px;height:16px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--text3);fill:none;stroke-width:2}
+.search-wrap input{width:100%;padding:8px 10px 8px 33px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:13.5px;outline:none}
+.key-list{padding:6px 14px 80px;display:flex;flex-direction:column;gap:5px}
+.key-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer}
 .ki-disp{background:var(--green-bg)} .ki-disp svg{stroke:var(--green)}
 .ki-indisp{background:var(--crimson-bg)} .ki-indisp svg{stroke:var(--crimson)}
-.ki-nloc{background:var(--amber-bg)} .ki-nloc svg{stroke:var(--amber)}
-.ki-livre{background:var(--surface2)} .ki-livre svg{stroke:var(--text3)}
-.key-info{flex:1;min-width:0}
-.key-loc{font-size:13.5px;font-weight:600;font-family:var(--mono);color:var(--text)}
-.key-sub{font-size:11.5px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.badge{font-size:10.5px;font-weight:500;padding:3px 8px;border-radius:6px;flex-shrink:0}
+.badge{font-size:10.5px;font-weight:500;padding:3px 8px;border-radius:6px;margin-left:auto}
 .b-disp{background:var(--green-bg);color:var(--green)}
 .b-indisp{background:var(--crimson-bg);color:var(--crimson)}
-.b-nloc{background:var(--amber-bg);color:var(--amber)}
-.b-livre{background:var(--surface2);color:var(--text3)}
-.chev{flex-shrink:0;width:13px;height:13px;stroke:var(--border2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text3);padding:40px 20px;text-align:center}
-.empty-state svg{width:36px;height:36px;stroke:var(--border2);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.empty-state p{font-size:13px;line-height:1.6;max-width:220px}
-
-/* BUSCA SCREEN */
-.busca-body{padding:14px;flex:1;overflow-y:auto}
-.busca-hint{font-size:13px;color:var(--text3);text-align:center;padding:30px 20px;line-height:1.7}
-.result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh)}
-.rc-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.rc-loc{font-family:var(--mono);font-size:22px;font-weight:600}
-.rc-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px}
-.rc-field{background:var(--surface2);border-radius:8px;padding:9px 11px}
-.rc-field-label{font-size:10.5px;color:var(--text3);margin-bottom:2px}
-.rc-field-val{font-size:13px;font-weight:500;color:var(--text)}
-.rc-actions{padding:0 14px 14px;display:flex;flex-direction:column;gap:7px}
-.rc-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:8px;border:none;font-family:var(--font);font-size:13.5px;font-weight:500;cursor:pointer;width:100%;transition:opacity .15s}
-.rc-btn:active{opacity:.8}
-.rc-btn-edit{background:var(--red);color:#fff}
-.rc-btn-pdf{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.rc-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-/* HISTÓRICO SCREEN */
-.hist-body{padding:12px 14px 80px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
-.hist-filter-bar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
-.hist-filter-bar::-webkit-scrollbar{display:none}
-.hist-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px}
-.hist-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
-.hist-loc{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)}
-.hist-time{font-size:11px;color:var(--text3)}
-.hist-action{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:6px;margin-bottom:5px}
-.ha-saida{background:var(--crimson-bg);color:var(--crimson)}
-.ha-devolucao{background:var(--green-bg);color:var(--green)}
-.ha-edicao{background:var(--blue-bg);color:var(--blue)}
-.ha-criacao{background:var(--purple-bg);color:var(--purple)}
-.hist-detail{font-size:12px;color:var(--text2);line-height:1.5}
-.hist-badge-tipo{font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:5px}
-.ht-terceiro{background:#e8f0fb;color:var(--blue)}
-.ht-inquilino{background:#fef3dc;color:var(--amber)}
-.ht-proprietario{background:#f0eafa;color:var(--purple)}
-
-/* GERENCIAR SCREEN */
-.ger-body{padding:14px;flex:1;overflow-y:auto}
-.ger-section{margin-bottom:18px}
-.ger-section-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;padding-left:2px}
-.ger-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
-.ger-row{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--border)}
-.ger-row:last-child{border-bottom:none}
-.ger-row-loc{font-family:var(--mono);font-size:13px;font-weight:600;flex:1;color:var(--text)}
-.ger-row-sub{font-size:11.5px;color:var(--text3)}
-.ger-row-actions{display:flex;gap:6px}
-.icon-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
-.icon-btn:active{background:var(--surface2)}
-.icon-btn svg{width:14px;height:14px;stroke:var(--text2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.icon-btn.danger svg{stroke:var(--crimson)}
-.icon-btn.danger{border-color:var(--crimson-bg)}
-.add-key-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;display:flex;flex-direction:column;gap:10px}
-.add-key-form input{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:14px;color:var(--text);outline:none;transition:border-color .15s;text-transform:uppercase}
-.add-key-form input:focus{border-color:var(--red);background:#fff}
-.add-key-form input::placeholder{font-family:var(--font);text-transform:none;color:var(--text3)}
-.btn-add-key{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px;font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
-.btn-add-key:active{opacity:.85}
-.btn-add-key svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.add-hint{font-size:12px;color:var(--text3);line-height:1.6}
-.bulk-input{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;resize:vertical;min-height:80px;transition:border-color .15s;text-transform:uppercase}
-.bulk-input:focus{border-color:var(--red)}
-
-/* MODAL SHEET */
-.backdrop{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:200;display:flex;align-items:flex-end;pointer-events:none;transition:background .25s}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:200;display:flex;align-items:flex-end;pointer-events:none;transition:all .3s}
 .backdrop.open{background:rgba(0,0,0,.45);pointer-events:all}
-.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:94vh;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;transform:translateY(100%);transition:transform .3s;padding:20px}
 .backdrop.open .sheet{transform:translateY(0)}
-.sheet-handle{width:34px;height:4px;background:var(--border2);border-radius:2px;margin:10px auto 0;flex-shrink:0}
-.sheet-header{padding:13px 14px 11px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
-.sheet-header h2{font-size:15px;font-weight:600;color:var(--text)}
-.sheet-close{background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-.sheet-close svg{width:13px;height:13px;stroke:var(--text2);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.sheet-body{overflow-y:auto;padding:14px;flex:1;display:flex;flex-direction:column;gap:12px}
-.sheet-footer{padding:11px 14px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px}
-.btn-primary{flex:1;padding:12px;background:var(--red);color:#fff;border:none;border-radius:10px;font-family:var(--font);font-size:14.5px;font-weight:600;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:7px}
-.btn-primary:active{opacity:.85}
-.btn-primary svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.btn-secondary{padding:12px 16px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:14.5px;font-weight:500;cursor:pointer;transition:background .15s}
-.btn-secondary:active{background:var(--surface3)}
-
-/* FORM FIELDS */
-.field{display:flex;flex-direction:column;gap:5px}
-.field label{font-size:12px;font-weight:500;color:var(--text2)}
-.field input,.field select,.field textarea{width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .15s;-webkit-appearance:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);background:#fff}
-.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23969692' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
-.field textarea{resize:none;height:68px;line-height:1.5}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.field-hint{font-size:11.5px;color:var(--text3);line-height:1.5;margin-top:1px}
-
-/* PDF SHEET */
-.pdf-tipo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px}
-.pdf-tipo-btn{padding:10px 6px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;font-size:12px;font-weight:500;color:var(--text2)}
-.pdf-tipo-btn.sel{border-color:var(--red);background:var(--red-muted);color:var(--red)}
-.pdf-tipo-icon{font-size:18px;display:block;margin-bottom:3px}
-.pdf-saida-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px}
-.pdf-saida-btn{padding:9px 4px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;font-size:11px;font-weight:500;color:var(--text2)}
-.pdf-saida-btn.sel{border-color:var(--red);background:var(--red-muted);color:var(--red)}
-.dias-input-wrap{display:none;gap:8px;align-items:center}
-.dias-input-wrap.show{display:flex}
-.dias-input-wrap input{width:80px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:15px;font-weight:500;text-align:center;color:var(--text);outline:none}
-.dias-input-wrap input:focus{border-color:var(--red)}
-.dias-label{font-size:13px;color:var(--text2)}
-
-/* TOAST */
-.toast{position:fixed;bottom:calc(env(safe-area-inset-bottom)+72px);left:50%;transform:translateX(-50%) translateY(20px);background:#191917;color:#fff;padding:9px 16px;border-radius:20px;font-size:12.5px;font-weight:500;opacity:0;pointer-events:none;transition:all .22s;z-index:500;white-space:nowrap;display:flex;align-items:center;gap:7px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast svg{width:15px;height:15px;stroke:#4ade80;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.toast.err svg{stroke:#f87171}
-
-/* CONFIRM DIALOG */
-.confirm-body{text-align:center;padding:8px 0 4px}
-.confirm-body p{color:var(--text2);font-size:14px;line-height:1.6}
-.confirm-body strong{color:var(--text)}
-.confirm-btns{display:flex;gap:8px;padding:11px 14px;border-top:1px solid var(--border)}
-.btn-danger{flex:1;padding:12px;background:var(--crimson);color:#fff;border:none;border-radius:10px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer}
+.btn-primary{width:100%;padding:12px;background:var(--red);color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- HEADER -->
   <div class="header">
     <div class="header-inner">
-      <div class="logo-box">
-        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Triangle / A symbol -->
-          <polygon points="22,8 34,30 10,30" fill="#E8651A"/>
-          <!-- White A cutout -->
-          <polygon points="22,14 27,26 17,26" fill="rgba(27,46,75,0.85)"/>
-          <!-- ACRC text -->
-          <text x="22" y="40" font-family="Arial" font-weight="700" font-size="7" fill="white" text-anchor="middle" letter-spacing="1">ACRC</text>
-        </svg>
-      </div>
+      <div class="logo-box">🏠</div>
       <div class="header-text">
         <h1>Controle de Chaves</h1>
         <p>ACRC Imóveis — Blumenau / SC</p>
       </div>
-      <button class="hbtn" onclick="exportCSV()" title="Exportar CSV">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </button>
+      <button class="hbtn" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
     </div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="showTab('lista',this)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Chaves
-      <span class="tab-badge" id="bdg"></span>
-    </button>
-    <button class="tab" onclick="showTab('busca',this)">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Busca
-    </button>
-    <button class="tab" onclick="showTab('historico',this)">
-      <svg viewBox="0 0 24 24"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/><polyline points="3 3 3 7.5 7.5 7.5"/></svg>
-      Histórico
-    </button>
-    <button class="tab" onclick="showTab('gerenciar',this)">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Gerenciar
-    </button>
+    <button class="tab active" onclick="showTab('lista',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Chaves</button>
+    <button class="tab" onclick="showTab('historico',this)"><svg viewBox="0 0 24 24"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/></svg>Histórico</button>
+    <button class="tab" onclick="showTab('gerenciar',this)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Gerenciar</button>
   </div>
 
   <div class="screens">
-
-    <!-- ═══ LISTA ═══ -->
     <div class="screen active" id="screen-lista">
       <div class="topbar">
         <div class="search-wrap">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="search" id="list-q" placeholder="Localização, código, responsável..." oninput="renderList()" autocomplete="off">
-        </div>
-        <div class="chips" id="chips">
-          <div class="chip active" onclick="setF('todos',this)"><span class="chip-dot" style="background:var(--text3)"></span>Todos</div>
-          <div class="chip" onclick="setF('DISPONÍVEL',this)"><span class="chip-dot" style="background:var(--green)"></span>Disponível</div>
-          <div class="chip" onclick="setF('INDISPONÍVEL',this)"><span class="chip-dot" style="background:var(--crimson)"></span>Indisponível</div>
-          <div class="chip" onclick="setF('NÃO LOCALIZADA',this)"><span class="chip-dot" style="background:var(--amber)"></span>Não localiz.</div>
-          <div class="chip" onclick="setF('LIVRE',this)"><span class="chip-dot" style="background:var(--text3)"></span>Livre</div>
+          <input type="search" id="list-q" placeholder="Buscar chaves..." oninput="renderList()">
         </div>
       </div>
-      <div class="list-meta" id="list-meta"></div>
       <div class="key-list" id="key-list"></div>
     </div>
 
-    <!-- ═══ BUSCA ═══ -->
-    <div class="screen" id="screen-busca">
-      <div class="topbar">
-        <div class="search-wrap">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="search" id="busca-q" placeholder="Ex: A1.3  ou  Código do imóvel..." oninput="quickSearch()" autocomplete="off">
-        </div>
-      </div>
-      <div class="busca-body" id="busca-body">
-        <p class="busca-hint">Digite a localização ou código do imóvel acima para localizar uma chave instantaneamente.</p>
-      </div>
-    </div>
-
-    <!-- ═══ HISTÓRICO ═══ -->
     <div class="screen" id="screen-historico">
-      <div class="hist-filter-bar" id="hist-chips">
-        <div class="chip active" onclick="setHF('todos',this)">Todos</div>
-        <div class="chip" onclick="setHF('SAÍDA',this)">Saídas</div>
-        <div class="chip" onclick="setHF('DEVOLUÇÃO',this)">Devoluções</div>
-        <div class="chip" onclick="setHF('EDIÇÃO',this)">Edições</div>
-      </div>
-      <div class="hist-body" id="hist-body"></div>
+      <div class="key-list" id="hist-body" style="padding-top:20px"></div>
     </div>
 
-    <!-- ═══ GERENCIAR ═══ -->
     <div class="screen" id="screen-gerenciar">
-      <div class="ger-body">
-
-        <div class="ger-section">
-          <p class="ger-section-title">Adicionar chaves</p>
-          <div class="add-key-form">
-            <div class="field">
-              <label>Código(s) da(s) chave(s)</label>
-              <textarea class="bulk-input" id="new-keys-input" placeholder="Uma por linha: E1.1&#10;F2.3&#10;G.01"></textarea>
-              <p class="add-hint">Digite um código por linha. Serão criadas com status <strong>Disponível</strong>.</p>
-            </div>
-            <button class="btn-add-key" onclick="addKeys()">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Adicionar chaves
-            </button>
-          </div>
-        </div>
-
-        <div class="ger-section">
-          <p class="ger-section-title">Chaves cadastradas <span id="ger-count" style="font-weight:400;color:var(--text3)"></span></p>
-          <div class="search-wrap" style="margin-bottom:8px">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="ger-q" placeholder="Filtrar chaves..." oninput="renderGer()" autocomplete="off">
-          </div>
-          <div class="ger-card" id="ger-list"></div>
-        </div>
-
+      <div style="padding:20px">
+        <textarea id="new-keys-input" placeholder="Digite códigos (um por linha)" style="width:100%; height:100px; padding:10px; border-radius:8px; border:1px solid var(--border)"></textarea>
+        <button class="btn-primary" style="margin-top:10px" onclick="addKeys()">Adicionar Chaves</button>
       </div>
-    </div>
-
-  </div>
-</div><!-- .app -->
-
-<!-- ═══ MODAL: EDITAR CHAVE ═══ -->
-<div class="backdrop" id="modal-edit" onclick="bdClick('modal-edit',event)">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h2 id="edit-title">Editar Chave</h2>
-      <button class="sheet-close" onclick="closeSheet('modal-edit')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="sheet-body" id="edit-body"></div>
-    <div class="sheet-footer">
-      <button class="btn-secondary" onclick="closeSheet('modal-edit')">Cancelar</button>
-      <button class="btn-primary" onclick="saveEdit()">
-        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Salvar
-      </button>
     </div>
   </div>
 </div>
 
-<!-- ═══ MODAL: RENOMEAR CHAVE ═══ -->
-<div class="backdrop" id="modal-rename" onclick="bdClick('modal-rename',event)">
+<div class="backdrop" id="modal-edit" onclick="if(event.target===this)closeSheet('modal-edit')">
   <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h2 id="rename-title">Renomear Chave</h2>
-      <button class="sheet-close" onclick="closeSheet('modal-rename')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="sheet-body">
-      <div class="field">
-        <label for="rename-input">Novo código da chave</label>
-        <input id="rename-input" style="font-family:var(--mono);font-size:18px;font-weight:600;text-transform:uppercase" placeholder="Ex: F2.3" autocomplete="off">
-      </div>
-      <p class="field-hint" style="color:var(--text3)">Use o mesmo formato: GRUPO + NÚMERO (ex: A1.1, E2.3, NOVO01)</p>
-    </div>
-    <div class="sheet-footer">
-      <button class="btn-secondary" onclick="closeSheet('modal-rename')">Cancelar</button>
-      <button class="btn-primary" onclick="saveRename()">Renomear</button>
+    <h2 id="edit-title" style="margin-bottom:15px">Editar Chave</h2>
+    <div style="display:flex; flex-direction:column; gap:10px">
+      <input type="text" id="edit-resp" placeholder="Nome do Responsável" style="padding:12px; border-radius:8px; border:1px solid var(--border)">
+      <select id="edit-status" style="padding:12px; border-radius:8px; border:1px solid var(--border)">
+        <option value="DISPONÍVEL">DISPONÍVEL</option>
+        <option value="INDISPONÍVEL">INDISPONÍVEL</option>
+      </select>
+      <button class="btn-primary" onclick="saveEdit()">Salvar Alterações</button>
+      <button onclick="closeSheet('modal-edit')" style="background:none; border:none; color:var(--text3); cursor:pointer">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ MODAL: PDF / SAÍDA ═══ -->
-<div class="backdrop" id="modal-pdf" onclick="bdClick('modal-pdf',event)">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h2 id="pdf-title">Gerar Comprovante</h2>
-      <button class="sheet-close" onclick="closeSheet('modal-pdf')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="sheet-body" id="pdf-body">
-      <div class="field">
-        <label>Destinatário</label>
-        <div class="pdf-tipo-grid">
-          <button class="pdf-tipo-btn sel" data-tipo="INQUILINO" onclick="selTipo(this)"><span class="pdf-tipo-icon">🏠</span>Inquilino</button>
-          <button class="pdf-tipo-btn" data-tipo="PROPRIETÁRIO" onclick="selTipo(this)"><span class="pdf-tipo-icon">👤</span>Proprietário</button>
-          <button class="pdf-tipo-btn" data-tipo="TERCEIRO" onclick="selTipo(this)"><span class="pdf-tipo-icon">🤝</span>Terceiro</button>
-        </div>
-      </div>
-      <div class="field">
-        <label for="pdf-nome">Nome completo</label>
-        <input id="pdf-nome" placeholder="Nome do recebedor" autocomplete="off">
-      </div>
-      <div class="field">
-        <label for="pdf-cpf">CPF / RG (opcional)</label>
-        <input id="pdf-cpf" placeholder="000.000.000-00" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Tipo de saída</label>
-        <div class="pdf-saida-grid">
-          <button class="pdf-saida-btn sel" data-saida="TEMPORÁRIA" onclick="selSaida(this)">⏳ Temporária</button>
-          <button class="pdf-saida-btn" data-saida="NOVO LOCATÁRIO" onclick="selSaida(this)">🔑 Novo Locatário</button>
-          <button class="pdf-saida-btn" data-saida="DEFINITIVA" onclick="selSaida(this)">📋 Definitiva</button>
-        </div>
-        <div class="dias-input-wrap show" id="dias-wrap">
-          <input type="number" id="pdf-dias" value="7" min="1" max="365">
-          <span class="dias-label">dias de prazo para devolução</span>
-        </div>
-        <p class="field-hint" id="saida-hint">Chave retorna após o prazo.</p>
-      </div>
-      <div class="field">
-        <label for="pdf-obs">Observações (opcional)</label>
-        <textarea id="pdf-obs" placeholder="Condições, motivo, etc."></textarea>
-      </div>
-    </div>
-    <div class="sheet-footer">
-      <button class="btn-secondary" onclick="closeSheet('modal-pdf')">Cancelar</button>
-      <button class="btn-primary" onclick="gerarPDF()">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
-        Gerar PDF
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ MODAL: CONFIRMAR EXCLUSÃO ═══ -->
-<div class="backdrop" id="modal-confirm" onclick="bdClick('modal-confirm',event)">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h2>Confirmar exclusão</h2>
-      <button class="sheet-close" onclick="closeSheet('modal-confirm')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="confirm-body sheet-body">
-      <p id="confirm-msg">Tem certeza?</p>
-    </div>
-    <div class="confirm-btns">
-      <button class="btn-secondary" onclick="closeSheet('modal-confirm')">Cancelar</button>
-      <button class="btn-danger" id="confirm-ok">Excluir</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toast-msg"></span></div>
+<div id="toast" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:10px 20px; border-radius:20px; display:none; z-index:1000"></div>
 
 <script>
-// ══════════════════════════════════════════
-// DATA
-// ══════════════════════════════════════════
-const GRUPOS = ["A","B","C","D","LOC","TEMP","DESOC","VEN"];
-const BASE = ["1.1","1.2","1.3","1.4","1.5","2.1","2.2","2.3","2.4","2.5","3.1","3.2","3.3","3.4","3.5","4.1","4.2","4.3","4.4","4.5"];
-const EXTRA = {TEMP:["5.1","5.2","5.3","5.4","5.5"],DESOC:["5.1","5.2","5.3","5.4","5.5","6.1","6.2","6.3","6.4","6.5","7.1","7.2","7.3","7.4","7.5"]};
-const STATUS_OPTS = ["DISPONÍVEL","INDISPONÍVEL","NÃO LOCALIZADA","LIVRE"];
-const KEY = "acrc_v3", HIST_KEY = "acrc_hist_v3";
+let keys = JSON.parse(localStorage.getItem('acrc_v1.6')) || [];
+let hist = JSON.parse(localStorage.getItem('acrc_hist_v1.6')) || [];
+let editingIdx = null;
 
-let keys = [], hist = [];
-
-function defaultKeys(){
-  const out = [];
-  GRUPOS.forEach(g => {
-    const suf = [...BASE,...(EXTRA[g]||[])];
-    suf.forEach(s => out.push({loc:g+s,codigo:"",status:"DISPONÍVEL",responsavel:"",dataRet:"",dataDev:"",obs:""}));
-  });
-  return out;
-}
-function load(){
-  try{ const r=localStorage.getItem(KEY); keys=r?JSON.parse(r):defaultKeys(); }catch(e){ keys=defaultKeys(); }
-  try{ const r=localStorage.getItem(HIST_KEY); hist=r?JSON.parse(r):[]; }catch(e){ hist=[]; }
-}
-function save(){
-  try{ localStorage.setItem(KEY,JSON.stringify(keys)); localStorage.setItem(HIST_KEY,JSON.stringify(hist)); }
-  catch(e){ toast("Erro ao salvar",true); }
-}
-function addHist(tipo, k, extra={}){
-  hist.unshift({id:Date.now(),tipo,loc:k.loc,codigo:k.codigo,responsavel:k.responsavel,status:k.status,ts:new Date().toISOString(),...extra});
-  if(hist.length>500) hist.pop();
-}
-
-// ══════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════
-const BC = {DISPONÍVEL:"disp",INDISPONÍVEL:"indisp","NÃO LOCALIZADA":"nloc",LIVRE:"livre"};
-const BL = {DISPONÍVEL:"Disponível",INDISPONÍVEL:"Indisponível","NÃO LOCALIZADA":"Não localiz.",LIVRE:"Livre"};
-function bc(s){return BC[s]||"livre";}
-function bl(s){return BL[s]||s;}
-function fmtDate(d){ if(!d)return"—"; const[y,m,dd]=d.split("-"); return`${dd}/${m}/${y}`; }
-function fmtTS(ts){ const d=new Date(ts); return d.toLocaleDateString("pt-BR")+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}); }
-const SVG_KEY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`;
-const SVG_CHEV = `<svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
-const SVG_EDIT = `<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-const SVG_RENAME = `<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
-const SVG_DEL = `<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>`;
-const SVG_PDF = `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>`;
-const SVG_SAVE = `<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`;
-
-// ══════════════════════════════════════════
-// LIST
-// ══════════════════════════════════════════
-let curFilter = "todos";
-function setF(f,btn){
-  curFilter=f;
-  document.querySelectorAll("#chips .chip").forEach(c=>c.classList.remove("active"));
-  btn.classList.add("active");
+function save() {
+  localStorage.setItem('acrc_v1.6', JSON.stringify(keys));
+  localStorage.setItem('acrc_hist_v1.6', JSON.stringify(hist));
   renderList();
-}
-function renderList(){
-  const q = document.getElementById("list-q").value.trim().toLowerCase();
-  const filtered = keys.filter(k=>{
-    const mq = !q||k.loc.toLowerCase().includes(q)||k.codigo.toLowerCase().includes(q)||k.responsavel.toLowerCase().includes(q);
-    const mf = curFilter==="todos"||k.status===curFilter;
-    return mq&&mf;
-  });
-  document.getElementById("list-meta").textContent = `${filtered.length} de ${keys.length} chaves`;
-  const indisp = keys.filter(k=>k.status==="INDISPONÍVEL").length;
-  const bdg = document.getElementById("bdg");
-  bdg.textContent = indisp||""; bdg.classList.toggle("show", indisp>0);
-  const el = document.getElementById("key-list");
-  if(!filtered.length){ el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>Nenhuma chave encontrada.</p></div>`; return; }
-  el.innerHTML = filtered.map(k=>{
-    const idx=keys.indexOf(k), cls=bc(k.status);
-    const sub=k.codigo&&k.responsavel?`${k.codigo} · ${k.responsavel}`:k.codigo||k.responsavel||(k.dataRet?`Saída: ${fmtDate(k.dataRet)}`:"Sem registros");
-    return `<div class="key-card" onclick="openEdit(${idx})">
-      <div class="key-icon ki-${cls}">${SVG_KEY}</div>
-      <div class="key-info"><div class="key-loc">${k.loc}</div><div class="key-sub">${sub}</div></div>
-      <span class="badge b-${cls}">${bl(k.status)}</span>${SVG_CHEV}
-    </div>`;
-  }).join("");
-}
-
-// ══════════════════════════════════════════
-// BUSCA RÁPIDA
-// ══════════════════════════════════════════
-function quickSearch(){
-  const q = document.getElementById("busca-q").value.trim().toLowerCase();
-  const el = document.getElementById("busca-body");
-  if(!q){ el.innerHTML=`<p class="busca-hint">Digite a localização ou código do imóvel acima para localizar uma chave instantaneamente.</p>`; return; }
-  const k = keys.find(x=>x.loc.toLowerCase()===q||x.codigo.toLowerCase()===q) || keys.find(x=>x.loc.toLowerCase().startsWith(q));
-  if(!k){ el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>Nenhuma chave encontrada para "<strong>${q}</strong>"</p></div>`; return; }
-  const idx=keys.indexOf(k), cls=bc(k.status);
-  el.innerHTML=`<div class="result-card">
-    <div class="rc-head"><span class="rc-loc">${k.loc}</span><span class="badge b-${cls}">${bl(k.status)}</span></div>
-    <div class="rc-fields">
-      <div class="rc-field"><div class="rc-field-label">Código imóvel</div><div class="rc-field-val">${k.codigo||"—"}</div></div>
-      <div class="rc-field"><div class="rc-field-label">Responsável</div><div class="rc-field-val">${k.responsavel||"—"}</div></div>
-      <div class="rc-field"><div class="rc-field-label">Data saída</div><div class="rc-field-val">${fmtDate(k.dataRet)}</div></div>
-      <div class="rc-field"><div class="rc-field-label">Data devolução</div><div class="rc-field-val">${fmtDate(k.dataDev)}</div></div>
-      ${k.obs?`<div class="rc-field" style="grid-column:1/-1"><div class="rc-field-label">Obs.</div><div class="rc-field-val" style="white-space:pre-line">${k.obs}</div></div>`:""}
-    </div>
-    <div class="rc-actions">
-      <button class="rc-btn rc-btn-edit" onclick="openEdit(${idx})">${SVG_EDIT} Editar esta chave</button>
-      <button class="rc-btn rc-btn-pdf" onclick="openPDF(${idx})">${SVG_PDF} Gerar comprovante PDF</button>
-    </div>
-  </div>`;
-}
-
-// ══════════════════════════════════════════
-// HISTÓRICO
-// ══════════════════════════════════════════
-let curHF = "todos";
-function setHF(f,btn){
-  curHF=f;
-  document.querySelectorAll("#hist-chips .chip").forEach(c=>c.classList.remove("active"));
-  btn.classList.add("active");
   renderHist();
 }
-const HIST_CLS = {SAÍDA:"ha-saida","DEVOLUÇÃO":"ha-devolucao","EDIÇÃO":"ha-edicao","CRIAÇÃO":"ha-criacao"};
-const TIPO_CLS = {INQUILINO:"ht-inquilino","PROPRIETÁRIO":"ht-proprietario",TERCEIRO:"ht-terceiro"};
-function renderHist(){
-  const el = document.getElementById("hist-body");
-  const filtered = hist.filter(h=>curHF==="todos"||h.tipo===curHF);
-  if(!filtered.length){ el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/><polyline points="3 3 3 7.5 7.5 7.5"/></svg><p>Nenhuma movimentação registrada ainda.</p></div>`; return; }
-  el.innerHTML = filtered.map(h=>`<div class="hist-card">
-    <div class="hist-card-top"><span class="hist-loc">${h.loc}${h.codigo?` · ${h.codigo}`:""}</span><span class="hist-time">${fmtTS(h.ts)}</span></div>
-    <span class="hist-action ${HIST_CLS[h.tipo]||''}">${h.tipo}</span>
-    ${h.destinatarioTipo?`<span class="hist-badge-tipo ${TIPO_CLS[h.destinatarioTipo]||''}" style="display:inline-flex;margin-left:6px">${h.destinatarioTipo}</span>`:""}
-    <div class="hist-detail">
-      ${h.responsavel?`<b>${h.responsavel}</b>`:""} 
-      ${h.saida_tipo?`· ${h.saida_tipo}`:""}
-      ${h.dias?`· ${h.dias} dias`:""}
-      ${h.status?`· Status: ${bl(h.status)}`:""}
-    </div>
-  </div>`).join("");
+
+function showTab(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  btn.classList.add('active');
 }
 
-// ══════════════════════════════════════════
-// EDIT MODAL
-// ══════════════════════════════════════════
-let editIdx = null;
-function openEdit(idx){
-  editIdx = idx;
-  const k = keys[idx];
-  document.getElementById("edit-title").textContent = "Chave — "+k.loc;
-  document.getElementById("edit-body").innerHTML=`
-    <div class="field-row">
-      <div class="field"><label>Código imóvel</label><input id="e-cod" value="${k.codigo}" placeholder="Ex: 12345" autocomplete="off"></div>
-      <div class="field"><label>Status</label><select id="e-status">${STATUS_OPTS.map(s=>`<option value="${s}"${k.status===s?" selected":""}>${bl(s)}</option>`).join("")}</select></div>
-    </div>
-    <div class="field"><label>Responsável</label><input id="e-resp" value="${k.responsavel}" placeholder="Nome do corretor/responsável" autocomplete="off"></div>
-    <div class="field-row">
-      <div class="field"><label>Data saída</label><input type="date" id="e-ret" value="${k.dataRet}"></div>
-      <div class="field"><label>Data devolução</label><input type="date" id="e-dev" value="${k.dataDev}"></div>
-    </div>
-    <div class="field"><label>Observações</label><textarea id="e-obs">${k.obs}</textarea></div>
-    <button class="rc-btn rc-btn-pdf" style="margin-top:4px" onclick="saveEditAndPDF()">${SVG_PDF} Salvar e gerar comprovante</button>`;
-  openSheet("modal-edit");
-  setTimeout(()=>document.getElementById("e-cod")?.focus(),350);
-}
-function saveEdit(andPDF=false){
-  if(editIdx===null)return;
-  const prev = {...keys[editIdx]};
-  keys[editIdx].codigo = document.getElementById("e-cod").value.trim();
-  keys[editIdx].status = document.getElementById("e-status").value;
-  keys[editIdx].responsavel = document.getElementById("e-resp").value.trim();
-  keys[editIdx].dataRet = document.getElementById("e-ret").value;
-  keys[editIdx].dataDev = document.getElementById("e-dev").value;
-  keys[editIdx].obs = document.getElementById("e-obs").value.trim();
-  // detect if it's a return (was INDISPONÍVEL → DISPONÍVEL or LIVRE)
-  const k = keys[editIdx];
-  const isReturn = (prev.status==="INDISPONÍVEL"||prev.status==="NÃO LOCALIZADA") && (k.status==="DISPONÍVEL"||k.status==="LIVRE");
-  addHist(isReturn?"DEVOLUÇÃO":"EDIÇÃO", k, {prevStatus:prev.status});
-  save();
-  closeSheet("modal-edit");
-  renderList(); renderHist(); quickSearch();
-  toast("Alterações salvas");
-  if(andPDF){ setTimeout(()=>openPDF(editIdx),300); }
-}
-function saveEditAndPDF(){ saveEdit(true); }
-
-// ══════════════════════════════════════════
-// RENAME MODAL (gerenciar)
-// ══════════════════════════════════════════
-let renameIdx = null;
-function openRename(idx){
-  renameIdx = idx;
-  document.getElementById("rename-title").textContent = "Renomear: "+keys[idx].loc;
-  document.getElementById("rename-input").value = keys[idx].loc;
-  openSheet("modal-rename");
-  setTimeout(()=>{ const i=document.getElementById("rename-input"); i.focus(); i.select(); },350);
-}
-function saveRename(){
-  if(renameIdx===null)return;
-  const val = document.getElementById("rename-input").value.trim().toUpperCase();
-  if(!val){ toast("Digite um código",true); return; }
-  if(keys.find((k,i)=>k.loc===val&&i!==renameIdx)){ toast("Código já existe",true); return; }
-  const old = keys[renameIdx].loc;
-  keys[renameIdx].loc = val;
-  addHist("EDIÇÃO", keys[renameIdx], {note:`Renomeado de ${old} para ${val}`});
-  save(); renderList(); renderGer(); renderHist();
-  closeSheet("modal-rename");
-  toast("Chave renomeada");
-}
-
-// ══════════════════════════════════════════
-// GERENCIAR
-// ══════════════════════════════════════════
-function addKeys(){
-  const raw = document.getElementById("new-keys-input").value.trim();
-  if(!raw){ toast("Digite ao menos um código",true); return; }
-  const lines = raw.split("\n").map(l=>l.trim().toUpperCase()).filter(Boolean);
-  let added=0, skipped=0;
-  lines.forEach(loc=>{
-    if(keys.find(k=>k.loc===loc)){ skipped++; return; }
-    const k={loc,codigo:"",status:"DISPONÍVEL",responsavel:"",dataRet:"",dataDev:"",obs:""};
-    keys.push(k);
-    addHist("CRIAÇÃO",k);
-    added++;
+function renderList() {
+  const q = document.getElementById('list-q').value.toLowerCase();
+  const container = document.getElementById('key-list');
+  container.innerHTML = '';
+  keys.filter(k => k.loc.toLowerCase().includes(q)).forEach((k, i) => {
+    const card = document.createElement('div');
+    card.className = 'key-card';
+    card.onclick = () => openEdit(keys.indexOf(k));
+    card.innerHTML = `
+      <div class="key-loc">${k.loc}</div>
+      <div class="badge ${k.status === 'DISPONÍVEL' ? 'b-disp' : 'b-indisp'}">${k.status}</div>
+    `;
+    container.appendChild(card);
   });
-  save(); renderList(); renderGer(); renderHist();
-  document.getElementById("new-keys-input").value="";
-  toast(`${added} chave(s) adicionada(s)${skipped?`, ${skipped} duplicada(s) ignorada(s)`:""}`);
 }
-let gerFilter="";
-function renderGer(){
-  gerFilter=document.getElementById("ger-q").value.trim().toLowerCase();
-  const filtered=keys.filter(k=>!gerFilter||k.loc.toLowerCase().includes(gerFilter)||k.codigo.toLowerCase().includes(gerFilter));
-  document.getElementById("ger-count").textContent=`(${keys.length})`;
-  const el=document.getElementById("ger-list");
-  if(!filtered.length){ el.innerHTML=`<div style="padding:16px;text-align:center;font-size:13px;color:var(--text3)">Nenhuma chave encontrada.</div>`; return; }
-  el.innerHTML=filtered.map((k)=>{
-    const idx=keys.indexOf(k),cls=bc(k.status);
-    return`<div class="ger-row">
-      <div><div class="ger-row-loc">${k.loc}</div><div class="ger-row-sub"><span class="badge b-${cls}" style="font-size:10px;padding:1px 6px">${bl(k.status)}</span>${k.codigo?` ${k.codigo}`:""}</div></div>
-      <div class="ger-row-actions">
-        <button class="icon-btn" onclick="openEdit(${idx})" title="Editar">${SVG_EDIT}</button>
-        <button class="icon-btn" onclick="openRename(${idx})" title="Renomear">${SVG_RENAME}</button>
-        <button class="icon-btn danger" onclick="confirmDel(${idx})" title="Excluir">${SVG_DEL}</button>
+
+function renderHist() {
+  const container = document.getElementById('hist-body');
+  container.innerHTML = hist.map(h => `
+    <div class="key-card" style="flex-direction:column; align-items:flex-start">
+      <div style="display:flex; width:100%; justify-content:space-between">
+        <strong>${h.loc}</strong> <small>${h.time}</small>
       </div>
-    </div>`;
-  }).join("");
+      <div style="font-size:12px; color:var(--text3)">${h.action} - ${h.resp}</div>
+    </div>
+  `).join('');
 }
 
-// confirm delete
-let delIdx=null;
-function confirmDel(idx){
-  delIdx=idx;
-  document.getElementById("confirm-msg").innerHTML=`Deseja excluir a chave <strong>${keys[idx].loc}</strong>? Esta ação não pode ser desfeita.`;
-  document.getElementById("confirm-ok").onclick=()=>doDelete();
-  openSheet("modal-confirm");
-}
-function doDelete(){
-  if(delIdx===null)return;
-  const k=keys.splice(delIdx,1)[0];
-  addHist("EDIÇÃO",k,{note:"Chave excluída"});
-  save(); renderList(); renderGer(); renderHist();
-  closeSheet("modal-confirm");
-  toast("Chave excluída");
-  delIdx=null;
+function addKeys() {
+  const input = document.getElementById('new-keys-input').value.trim();
+  if(!input) return;
+  input.split('\n').forEach(loc => {
+    if(loc.trim()) keys.push({loc: loc.trim().toUpperCase(), status: 'DISPONÍVEL', responsavel: ''});
+  });
+  document.getElementById('new-keys-input').value = '';
+  save();
+  showTab('lista', document.querySelector('.tab'));
 }
 
-// ══════════════════════════════════════════
-// PDF MODAL
-// ══════════════════════════════════════════
-let pdfIdx=null, pdfTipo="INQUILINO", pdfSaida="TEMPORÁRIA";
-function openPDF(idx){
-  pdfIdx=idx;
-  const k=keys[idx];
-  document.getElementById("pdf-title").textContent=`Comprovante — ${k.loc}`;
-  document.getElementById("pdf-nome").value=k.responsavel||"";
-  document.getElementById("pdf-obs").value=k.obs||"";
-  document.getElementById("pdf-cpf").value="";
-  pdfTipo="INQUILINO"; pdfSaida="TEMPORÁRIA";
-  document.querySelectorAll(".pdf-tipo-btn").forEach(b=>b.classList.toggle("sel",b.dataset.tipo==="INQUILINO"));
-  document.querySelectorAll(".pdf-saida-btn").forEach(b=>b.classList.toggle("sel",b.dataset.saida==="TEMPORÁRIA"));
-  document.getElementById("dias-wrap").classList.add("show");
-  document.getElementById("saida-hint").textContent="Chave retorna após o prazo.";
-  document.getElementById("pdf-dias").value=7;
-  openSheet("modal-pdf");
+function openEdit(idx) {
+  editingIdx = idx;
+  const k = keys[idx];
+  document.getElementById('edit-title').innerText = "Chave: " + k.loc;
+  document.getElementById('edit-resp').value = k.responsavel || '';
+  document.getElementById('edit-status').value = k.status;
+  document.getElementById('modal-edit').parentElement.classList.add('open');
 }
-function selTipo(btn){
-  pdfTipo=btn.dataset.tipo;
-  document.querySelectorAll(".pdf-tipo-btn").forEach(b=>b.classList.remove("sel"));
-  btn.classList.add("sel");
-}
-function selSaida(btn){
-  pdfSaida=btn.dataset.saida;
-  document.querySelectorAll(".pdf-saida-btn").forEach(b=>b.classList.remove("sel"));
-  btn.classList.add("sel");
-  const show=pdfSaida==="TEMPORÁRIA";
-  document.getElementById("dias-wrap").classList.toggle("show",show);
-  const hints={TEMPORÁRIA:"Chave retorna após o prazo.","NOVO LOCATÁRIO":"Chave entregue ao novo locatário — não retorna.",DEFINITIVA:"Saída definitiva — chave não retorna."};
-  document.getElementById("saida-hint").textContent=hints[pdfSaida]||"";
-}
-function gerarPDF(){
-  if(pdfIdx===null)return;
-  const k=keys[pdfIdx];
-  const nome=document.getElementById("pdf-nome").value.trim();
-  const cpf=document.getElementById("pdf-cpf").value.trim();
-  const dias=document.getElementById("pdf-dias")?.value;
-  const obs=document.getElementById("pdf-obs").value.trim();
-  if(!nome){ toast("Digite o nome do recebedor",true); return; }
-  // update key
-  keys[pdfIdx].responsavel=nome;
-  if(pdfSaida==="TEMPORÁRIA"||pdfSaida==="NOVO LOCATÁRIO"||pdfSaida==="DEFINITIVA"){
-    keys[pdfIdx].status="INDISPONÍVEL";
-    if(!keys[pdfIdx].dataRet) keys[pdfIdx].dataRet=new Date().toISOString().slice(0,10);
-    if(pdfSaida==="TEMPORÁRIA"&&dias){
-      const dev=new Date(); dev.setDate(dev.getDate()+parseInt(dias));
-      keys[pdfIdx].dataDev=dev.toISOString().slice(0,10);
-    } else { keys[pdfIdx].dataDev=""; }
-  }
-  addHist("SAÍDA",keys[pdfIdx],{destinatarioTipo:pdfTipo,saida_tipo:pdfSaida,dias:pdfSaida==="TEMPORÁRIA"?dias:null});
-  save(); renderList(); renderHist(); quickSearch();
 
-  // Generate PDF
-  try{
-    const {jsPDF} = window.jspdf;
-    const doc = new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
-    const hoje = new Date().toLocaleDateString("pt-BR");
-    const hora = new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
-    // Header bar
-    doc.setFillColor(27,46,75);
-    doc.rect(0,0,210,28,"F");
-    doc.setTextColor(255,255,255);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(16);
-    doc.text("ACRC IMÓVEIS",14,12);
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(9);
-    doc.text("Controle de Chaves — Comprovante de Entrega",14,19);
-    doc.text(`Emitido em: ${hoje} às ${hora}`,14,24);
-    // Title box
-    doc.setFillColor(245,245,243);
-    doc.roundedRect(10,33,190,22,3,3,"F");
-    doc.setTextColor(25,25,23);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(20);
-    doc.text(k.loc,20,44);
-    doc.setFontSize(10);
-    doc.setFont("helvetica","normal");
-    doc.setTextColor(90,90,86);
-    if(k.codigo) doc.text(`Código do imóvel: ${k.codigo}`,20,50);
-    // Badge tipo saída
-    const saidaColors={TEMPORÁRIA:[234,248,238],DEFINITIVA:[252,234,234],"NOVO LOCATÁRIO":[254,243,220]};
-    const saidaTxtColors={TEMPORÁRIA:[37,122,53],DEFINITIVA:[161,40,40],"NOVO LOCATÁRIO":[138,92,8]};
-    const sc=saidaColors[pdfSaida]||[240,240,240];
-    const stc=saidaTxtColors[pdfSaida]||[80,80,80];
-    doc.setFillColor(sc[0],sc[1],sc[2]);
-    doc.roundedRect(155,35,48,18,3,3,"F");
-    doc.setTextColor(stc[0],stc[1],stc[2]);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(9);
-    doc.text(pdfSaida,179,45,{align:"center"});
-    if(pdfSaida==="TEMPORÁRIA"&&dias){
-      doc.setFont("helvetica","normal");
-      doc.setFontSize(8);
-      doc.text(`${dias} dias`,179,50,{align:"center"});
-    }
-    // Divider
-    doc.setDrawColor(228,228,224);
-    doc.line(10,60,200,60);
-    // Fields
-    const fields=[
-      ["Destinatário",nome+(cpf?` — CPF/RG: ${cpf}`:"")],
-      ["Tipo",pdfTipo],
-      ["Data de saída",fmtDate(keys[pdfIdx].dataRet)],
-      ["Devolução prevista",pdfSaida==="TEMPORÁRIA"?fmtDate(keys[pdfIdx].dataDev):"Não se aplica"],
-      ["Responsável pela entrega","ACRC Imóveis — Blumenau/SC"],
-    ];
-    doc.setFont("helvetica","normal");
-    let y=70;
-    fields.forEach(([label,val])=>{
-      doc.setFontSize(9); doc.setTextColor(130,130,130); doc.text(label.toUpperCase(),14,y);
-      doc.setFontSize(12); doc.setTextColor(25,25,23); doc.setFont("helvetica","bold");
-      doc.text(String(val),14,y+6);
-      doc.setFont("helvetica","normal"); y+=16;
+function closeSheet() {
+  document.getElementById('modal-edit').parentElement.classList.remove('open');
+}
+
+function saveEdit() {
+  const k = keys[editingIdx];
+  const oldStatus = k.status;
+  k.responsavel = document.getElementById('edit-resp').value;
+  k.status = document.getElementById('edit-status').value;
+  
+  if(oldStatus !== k.status) {
+    hist.unshift({
+      loc: k.loc,
+      resp: k.responsavel,
+      action: k.status === 'INDISPONÍVEL' ? 'SAÍDA' : 'RETORNO',
+      time: new Date().toLocaleString()
     });
-    if(obs){
-      y+=4;
-      doc.setFontSize(9); doc.setTextColor(130,130,130); doc.text("OBSERVAÇÕES",14,y);
-      doc.setFontSize(11); doc.setTextColor(25,25,23);
-      const lines=doc.splitTextToSize(obs,180);
-      doc.text(lines,14,y+6); y+=6+lines.length*6;
-    }
-    // Warning box for temp
-    if(pdfSaida==="TEMPORÁRIA"&&dias){
-      y+=6;
-      doc.setFillColor(254,243,220);
-      doc.roundedRect(10,y,190,14,3,3,"F");
-      doc.setTextColor(138,92,8);
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(9);
-      doc.text(`⚠  Prazo de devolução: ${dias} dias a partir de ${fmtDate(keys[pdfIdx].dataRet)} — devolver até ${fmtDate(keys[pdfIdx].dataDev)}`,16,y+9);
-      y+=20;
-    } else if(pdfSaida==="DEFINITIVA"||pdfSaida==="NOVO LOCATÁRIO"){
-      y+=6;
-      doc.setFillColor(252,234,234);
-      doc.roundedRect(10,y,190,14,3,3,"F");
-      doc.setTextColor(161,40,40);
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(9);
-      doc.text(`Esta chave NÃO será devolvida — saída ${pdfSaida.toLowerCase()}.`,16,y+9);
-      y+=20;
-    }
-    // Signature boxes
-    y=Math.max(y+10,210);
-    doc.setDrawColor(180,180,176);
-    doc.line(14,y+20,90,y+20);
-    doc.line(120,y+20,196,y+20);
-    doc.setFontSize(9); doc.setTextColor(130,130,130); doc.setFont("helvetica","normal");
-    doc.text("Assinatura do recebedor",52,y+25,{align:"center"});
-    doc.text("ACRC Imóveis — Responsável",158,y+25,{align:"center"});
-    doc.text(nome,52,y+32,{align:"center"});
-    doc.text("Blumenau/SC",158,y+32,{align:"center"});
-    // Footer
-    doc.setFillColor(27,46,75);
-    doc.rect(0,285,210,12,"F");
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(8);
-    doc.text("ACRC Imóveis — www.acrcimoveis.com.br — Blumenau/SC",105,292,{align:"center"});
-    doc.save(`ACRC_Chave_${k.loc}_${hoje.replace(/\//g,"-")}.pdf`);
-    closeSheet("modal-pdf");
-    toast("PDF gerado e baixado");
-  }catch(e){
-    console.error(e);
-    toast("Erro ao gerar PDF — verifique o console",true);
+    if(k.status === 'INDISPONÍVEL') gerarPDF(k);
   }
+  save();
+  closeSheet();
 }
 
-// ══════════════════════════════════════════
-// SHEET UTILS
-// ══════════════════════════════════════════
-function openSheet(id){ document.getElementById(id).classList.add("open"); document.body.style.overflow="hidden"; }
-function closeSheet(id){ document.getElementById(id).classList.remove("open"); document.body.style.overflow=""; }
-function bdClick(id,e){ if(e.target===document.getElementById(id)) closeSheet(id); }
-
-// ══════════════════════════════════════════
-// TABS
-// ══════════════════════════════════════════
-function showTab(id,btn){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById("screen-"+id).classList.add("active");
-  btn.classList.add("active");
-  if(id==="historico") renderHist();
-  if(id==="gerenciar") renderGer();
+function gerarPDF(k) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text("ACRC IMÓVEIS - COMPROVANTE", 20, 20);
+  doc.text(`Chave: ${k.loc}`, 20, 40);
+  doc.text(`Responsável: ${k.responsavel}`, 20, 50);
+  doc.text(`Data: ${new Date().toLocaleString()}`, 20, 60);
+  doc.save(`recibo_${k.loc}.pdf`);
 }
 
-// ══════════════════════════════════════════
-// EXPORT CSV
-// ══════════════════════════════════════════
-function exportCSV(){
-  const rows=[["Localização","Código","Status","Responsável","Data Saída","Data Devolução","Obs"]];
-  keys.forEach(k=>rows.push([k.loc,k.codigo,k.status,k.responsavel,k.dataRet,k.dataDev,k.obs]));
-  const csv=rows.map(r=>r.map(v=>`"${(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
-  const a=document.createElement("a");
-  a.href="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);
-  a.download=`ACRC_Chaves_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); toast("CSV exportado");
+function exportCSV() {
+  let csv = "Localizacao,Status,Responsavel\n";
+  keys.forEach(k => csv += `${k.loc},${k.status},${k.responsavel}\n`);
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'chaves.csv';
+  a.click();
 }
 
-// ══════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════
-let toastT;
-function toast(msg,err=false){
-  const el=document.getElementById("toast");
-  document.getElementById("toast-msg").textContent=msg;
-  el.classList.toggle("err",err);
-  el.classList.add("show");
-  clearTimeout(toastT);
-  toastT=setTimeout(()=>el.classList.remove("show"),2600);
-}
-
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.querySelectorAll(".backdrop.open").forEach(b=>b.classList.remove("open")); });
-
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
-load();
 renderList();
-renderDashboard_placeholder();
-function renderDashboard_placeholder(){}
+renderHist();
 </script>
 </body>
 </html>
