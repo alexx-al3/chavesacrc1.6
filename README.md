@@ -1,85 +1,183 @@
-# 🔑 ACRC Imóveis — Controle de Chaves
+# 🔑 ACRC Imóveis — Controle de Chaves v3.0
 
-Sistema mobile-first de controle de chaves para a ACRC Imóveis.
+Sistema completo de controle de chaves com perfis de usuário, assinatura digital, histórico por chave, relatórios automáticos por email e auditoria total.
 
 ---
 
-## 🚀 Deploy no Vercel (5 minutos, gratuito)
+## 🚀 Deploy no Vercel
 
-### Passo 1 — Criar conta no Vercel
-Acesse **https://vercel.com** e clique em **Sign Up**.
-Recomendado: entrar com uma conta **GitHub** (facilita o processo).
+### Passo 1 — Repositório GitHub
+1. Acesse **github.com** → **New repository** → nome: `acrc-chaves`
+2. Clique em **"uploading an existing file"**
+3. Faça upload de **todos** os arquivos desta pasta:
+   - `index.html`
+   - `manifest.json`
+   - `vercel.json`
+   - `package.json`
+   - `api/send-email.js`
+4. Clique **Commit changes**
 
-### Passo 2 — Fazer upload do projeto
-
-**Opção A — Pelo site (mais fácil):**
-1. Acesse https://vercel.com/new
-2. Clique em **"Browse"** ou arraste a pasta `acrc-chaves-v2` inteira
+### Passo 2 — Deploy no Vercel
+1. Acesse **vercel.com/new**
+2. Importe o repositório `acrc-chaves`
 3. Clique **Deploy**
-4. Pronto! Em ~30 segundos você receberá uma URL pública
+4. Em ~60 segundos você recebe a URL pública
 
-**Opção B — Pelo terminal (se tiver Node.js instalado):**
-```bash
-npm install -g vercel
-cd acrc-chaves-v2
-vercel
+---
+
+## 👥 Usuários padrão
+
+| Usuário    | Senha       | Perfil    |
+|------------|-------------|-----------|
+| `cadastro` | `acrc@2024` | Cadastro  |
+| `adm`      | `adm@2024`  | ADM       |
+| `corretor` | `cor@2024`  | Corretor  |
+
+> ⚠️ **Altere as senhas no primeiro acesso** pelo perfil Cadastro → Admin → Config
+
+---
+
+## 🔒 Permissões por perfil
+
+| Funcionalidade         | Corretor | ADM | Cadastro |
+|------------------------|:--------:|:---:|:--------:|
+| Ver chaves             | ✅       | ✅  | ✅       |
+| Editar chave           | ✅*      | ✅  | ✅       |
+| Registrar foto         | ✅       | ✅  | ✅       |
+| Datas de saída/retorno | ✅       | ✅  | ✅       |
+| Gerar PDF              | ❌       | ✅  | ✅       |
+| Assinatura digital     | ❌       | ✅  | ✅       |
+| Gerenciar chaves       | ❌       | ✅  | ✅       |
+| Gerenciar usuários     | ❌       | ❌  | ✅       |
+| Ver histórico          | ❌       | ✅  | ✅       |
+| Configurações          | ❌       | ✅  | ✅       |
+
+*Corretor: não edita código do imóvel nem observações
+
+---
+
+## ✉️ Configurar email automático (quando quiser)
+
+### No Google
+1. Acesse **myaccount.google.com → Segurança**
+2. Ative **Verificação em duas etapas**
+3. Vá em **Senhas de app** → Gerar → nome `ACRC Chaves`
+4. Anote a senha de 16 caracteres
+
+### No Vercel
+1. Vá em **Settings → Environment Variables**
+2. Adicione:
+   - `GMAIL_USER` → `seuemail@gmail.com`
+   - `GMAIL_PASS` → `senha-de-16-caracteres`
+   - `EMAIL_DEST` → `destinatario@acrcimoveis.com.br`
+3. Clique **Redeploy**
+
+Pronto! Todo salvamento enviará relatório automático por email.
+
+---
+
+## 🗄️ Conectar Supabase (banco de dados compartilhado)
+
+### No Supabase
+1. Acesse **supabase.com** → **New project**
+2. Anote a **URL** e a **anon key** (em Settings → API)
+3. No SQL Editor, execute:
+
+```sql
+-- Tabela de chaves
+CREATE TABLE keys (
+  id TEXT PRIMARY KEY,
+  loc TEXT NOT NULL,
+  codigo TEXT DEFAULT '',
+  status TEXT DEFAULT 'LIVRE',
+  responsavel TEXT DEFAULT '',
+  data_ret TEXT DEFAULT '',
+  data_dev TEXT DEFAULT '',
+  obs TEXT DEFAULT '',
+  foto TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Tabela de histórico
+CREATE TABLE history (
+  id BIGINT PRIMARY KEY DEFAULT extract(epoch from now())*1000,
+  tipo TEXT,
+  loc TEXT,
+  codigo TEXT,
+  responsavel TEXT,
+  status TEXT,
+  ts TIMESTAMPTZ DEFAULT NOW(),
+  usuario TEXT,
+  perfil TEXT,
+  changes JSONB,
+  extra JSONB
+);
+
+-- Tabela de usuários
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  user_login TEXT UNIQUE,
+  pass TEXT,
+  role TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Habilitar RLS (Row Level Security) - básico
+ALTER TABLE keys ENABLE ROW LEVEL SECURITY;
+ALTER TABLE history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Policy: permite tudo com anon key (ajuste conforme necessidade)
+CREATE POLICY "allow_all" ON keys FOR ALL USING (true);
+CREATE POLICY "allow_all" ON history FOR ALL USING (true);
+CREATE POLICY "allow_all" ON users FOR ALL USING (true);
 ```
 
----
+### No index.html
+Substitua no início do `<script>`:
+```javascript
+const SUPA_URL = "https://xxxx.supabase.co";   // sua URL
+const SUPA_KEY = "eyJ...";                       // sua anon key
+```
 
-## 🌐 Domínio personalizado (opcional)
-
-Depois do deploy, no painel do Vercel:
-1. Vá em **Settings → Domains**
-2. Adicione `chaves.acrcimoveis.com.br`
-3. No provedor do domínio (registro.br, Hostgator, etc), adicione um registro CNAME:
-   - **Nome:** `chaves`
-   - **Valor:** `cname.vercel-dns.com`
-4. Aguarde até 24h para propagar
+O app detecta automaticamente e começa a usar o Supabase como banco.
 
 ---
 
 ## 📱 Instalar como app no celular
 
-Após acessar a URL no celular:
-- **iPhone/iPad:** Safari → compartilhar → "Adicionar à Tela de Início"
-- **Android:** Chrome → menu (⋮) → "Adicionar à tela inicial"
-
-O app aparece como um ícone nativo, sem barra do navegador.
+**iPhone/iPad:** Safari → Compartilhar → "Adicionar à Tela de Início"  
+**Android:** Chrome → Menu (⋮) → "Adicionar à tela inicial"
 
 ---
 
-## ✨ Funcionalidades
-
-| Aba | O que faz |
-|-----|-----------|
-| **Chaves** | Lista todas as chaves com filtros por status e busca |
-| **Busca** | Localiza qualquer chave instantaneamente por código ou localização |
-| **Histórico** | Registro completo de saídas, devoluções e edições |
-| **Gerenciar** | Adicionar novas chaves (ex: E1.1, F2.3), renomear, excluir |
-
-### Comprovante PDF
-- Gere comprovantes para **Inquilino**, **Proprietário** ou **Terceiro**
-- Tipos de saída: **Temporária** (com prazo em dias), **Novo Locatário** ou **Definitiva**
-- PDF profissional com assinatura, dados da ACRC e aviso de prazo
-
----
-
-## 💾 Dados
-
-Os dados são salvos no navegador de cada dispositivo (`localStorage`).  
-Use o botão **Exportar CSV** (ícone ↓ no topo) para fazer backup regularmente.
-
-> **Para dados compartilhados entre todos os usuários em tempo real**, será necessário adicionar um banco de dados (Supabase, Firebase, etc). Entre em contato com um desenvolvedor para esse upgrade.
-
----
-
-## 📁 Arquivos do projeto
+## 📁 Estrutura do projeto
 
 ```
-acrc-chaves-v2/
-├── index.html      ← App completo (HTML + CSS + JS)
-├── manifest.json   ← Configuração PWA (instalar como app)
-├── vercel.json     ← Configuração de deploy
-└── README.md       ← Este arquivo
+acrc-chaves/
+├── index.html          ← App completo
+├── manifest.json       ← PWA config
+├── vercel.json         ← Deploy config
+├── package.json        ← Dependências (Nodemailer)
+├── api/
+│   └── send-email.js   ← Backend email (Vercel Function)
+└── README.md
 ```
+
+---
+
+## 🔄 Regras de status automáticas
+
+| Ação                          | Status resultante |
+|-------------------------------|:-----------------:|
+| Nova chave cadastrada         | LIVRE             |
+| Código do imóvel preenchido   | DISPONÍVEL        |
+| PDF gerado (temporário)       | INDISPONÍVEL      |
+| PDF Definitivo/Novo Locatário | LIVRE (limpa dados) |
+| Devolução registrada          | DISPONÍVEL/LIVRE  |
+
+---
+
+Dúvidas? Abra uma conversa com o Claude e cole este README.
