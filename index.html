@@ -257,9 +257,7 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
           <span id="user-label">—</span>
           <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         </div>
-        <button class="hbtn" onclick="exportCSV()" title="Exportar CSV" id="btn-export" style="display:none">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </button>
+<!-- btn-export removido do header -->
       </div>
     </div>
   </div>
@@ -338,7 +336,8 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
           <div class="chip" onclick="setGHF('EDIÇÃO',this)">Edições</div>
           <div class="chip" onclick="setGHF('PDF',this)">PDFs</div>
         </div>
-        <div id="ghbody" style="padding:12px 14px 80px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+        <div class="lmeta" id="gh-meta" style="padding:5px 14px 2px;flex-shrink:0"></div>
+        <div id="ghbody" style="padding:5px 14px 80px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px"></div>
       </div>
       <div id="as-cfg" style="display:none;padding:14px;overflow-y:auto">
         <p class="asec">Email para relatórios</p>
@@ -353,6 +352,16 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
           <div class="fld"><label>Nova senha</label><input type="password" id="pn2" placeholder="Nova senha"></div>
           <div class="fld"><label>Confirmar</label><input type="password" id="pk" placeholder="Confirmar nova senha"></div>
           <button class="addbtn" onclick="changePwd()">Salvar senha</button>
+        </div>
+        <div id="csv-section" style="display:none">
+          <p class="asec" style="margin-top:16px">Exportar dados</p>
+          <div class="cpform">
+            <p class="hint">Exporta todas as chaves em formato CSV (Excel).</p>
+            <button class="addbtn" onclick="exportCSV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar CSV
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -605,7 +614,7 @@ function doLogout() {
   sessionStorage.removeItem(SK.ss);
   document.getElementById("tabs").style.display="none";
   document.getElementById("user-chip").style.display="none";
-  document.getElementById("btn-export").style.display="none";
+  // btn-export removido
   document.getElementById("lu").value="";
   document.getElementById("lp").value="";
   document.getElementById("lerr").classList.remove("show");
@@ -615,7 +624,7 @@ function initApp() {
   // Header
   document.getElementById("tabs").style.display="flex";
   document.getElementById("user-chip").style.display="flex";
-  if(can("viewKeys")) document.getElementById("btn-export").style.display="flex";
+  // btn-export removido do header
   const lbl = document.getElementById("user-label");
   lbl.textContent = session.name + " · " + session.role.charAt(0).toUpperCase()+session.role.slice(1);
   const dot = document.getElementById("profile-dot");
@@ -729,8 +738,9 @@ let vidx=null;
 function openKey(idx) {
   vidx=idx; const k=keys[idx];
   document.getElementById("mk-t").textContent = "Chave — "+k.loc;
-  const kh = hist.filter(h=>h.loc===k.loc).slice(0,20);
-  const histHTML = kh.length ? `<div class="fld" style="gap:8px"><label>Histórico desta chave</label><div class="hist-list">${kh.map(h=>`<div class="hi"><div class="hdw"><div class="hdot ${HD[h.tipo]||'hde'}"></div><div class="hline"></div></div><div class="hcnt"><div class="hal">${HL[h.tipo]||h.tipo}${h.destinatarioTipo?`<span class="htbdg ${TC[h.destinatarioTipo]||''}">${h.destinatarioTipo}</span>`:""}<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:6px">${h.perfil||""}</span></div><div class="hdt">${h.usuario?`<b>${h.usuario}</b> · `:""} ${h.responsavel||""}${h.saida_tipo?" · "+h.saida_tipo:""}${h.changes?" · "+h.changes.map(c=>c.campo).join(", "):""}</div><div class="htm">${fts(h.ts)}</div></div></div>`).join("")}</div></div>` : `<p style="font-size:12px;color:var(--tx3);text-align:center;padding:8px 0">Sem movimentações.</p>`;
+  const kh = hist.filter(h=>h.loc===k.loc && !['EMAIL','CRIAÇÃO'].includes(h.tipo)).slice(0,1);
+  const lastEntry = kh[0];
+  const histHTML = lastEntry ? `<div class="fld" style="gap:6px"><label>Última movimentação</label><div style="background:var(--s2);border-radius:8px;padding:10px 12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:12px;font-weight:600;color:var(--tx)">${HL[lastEntry.tipo]||lastEntry.tipo}${lastEntry.destinatarioTipo?`<span class="htbdg ${TC[lastEntry.destinatarioTipo]||''}">${lastEntry.destinatarioTipo}</span>`:""}</span><span style="font-size:11px;color:var(--tx3)">${fts(lastEntry.ts)}</span></div><div style="font-size:12px;color:var(--tx2)">${lastEntry.usuario?`<b>${lastEntry.usuario}</b>`:""}${lastEntry.responsavel?" · "+lastEntry.responsavel:""}${lastEntry.saida_tipo?" · "+lastEntry.saida_tipo:""}</div></div></div>` : `<p style="font-size:12px;color:var(--tx3);text-align:center;padding:8px 0">Sem movimentações.</p>`;
   document.getElementById("mk-b").innerHTML = `
     ${k.foto?`<img src="${k.foto}" style="width:100%;height:140px;object-fit:cover;border-radius:10px;border:1px solid var(--bd)">`:""} 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -779,12 +789,20 @@ function openEdit(idx) {
       <div class="fld"><label>Data devolução</label><input type="date" id="edev" value="${k.dataDev}"></div>
     </div>
     <div class="fld"><label>Observações</label><textarea id="eob" ${isCorretor?"disabled":""}>${k.obs}</textarea></div>
-    ${can("genPDF")?`<button style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:8px;border:1px solid var(--bd);background:var(--s2);font-family:var(--f);font-size:13.5px;font-weight:500;cursor:pointer;width:100%;color:var(--tx);margin-top:4px" onclick="saveAndPDF()">${IP} Salvar e gerar comprovante</button>`:""}`;
+    ${can("genPDF")?`<button style="display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:8px;border:1.5px solid var(--or);background:var(--or-bg);font-family:var(--f);font-size:13px;font-weight:500;cursor:pointer;width:100%;color:var(--or);margin-top:4px" onclick="saveAndPDF()">${IP} Salvar e gerar comprovante</button>`:""}`;
   openSheet("me");
 }
 function onStatusChange(val) {
   const rf = document.getElementById("resp-field");
   if(rf) rf.style.display = val==="INDISPONÍVEL" ? "" : "none";
+  // Clear dates when DISPONÍVEL or LIVRE
+  if(val==="DISPONÍVEL"||val==="LIVRE") {
+    const eret=document.getElementById("eret"), edev=document.getElementById("edev");
+    if(eret) eret.value=""; if(edev) edev.value="";
+  }
+  // Make dataRet required indicator
+  const retFld=document.getElementById("eret");
+  if(retFld) retFld.style.borderColor = val==="INDISPONÍVEL" ? "var(--or)" : "";
 }
 function handlePhoto(e) {
   const file=e.target.files[0]; if(!file)return;
@@ -798,24 +816,45 @@ async function saveEdit(andPDF=false) {
   const prev = {...keys[eidx]};
   const newStatus = document.getElementById("es").value;
   const newCodigo = document.getElementById("ec")?.value?.trim() || prev.codigo;
+  const newDataRet = document.getElementById("eret").value;
+  const newDataDev = document.getElementById("edev").value;
+
+  // Validation: INDISPONÍVEL requires dataRet
+  if(newStatus==="INDISPONÍVEL" && !newDataRet) {
+    toast("Preencha a data de saída para status Indisponível",true); return;
+  }
+  // Validation: returning from INDISPONÍVEL requires dataDev
+  const isReturn = (prev.status==="INDISPONÍVEL"||prev.status==="NÃO LOCALIZADA") && (newStatus==="DISPONÍVEL"||newStatus==="LIVRE");
+  if(isReturn && !newDataDev) {
+    toast("Preencha a data de devolução ao retornar a chave",true); return;
+  }
+
   keys[eidx].foto = ephoto;
   keys[eidx].codigo = newCodigo;
   keys[eidx].status = newStatus;
   keys[eidx].responsavel = newStatus==="INDISPONÍVEL" ? (document.getElementById("er")?.value?.trim()||"") : "";
-  keys[eidx].dataRet = document.getElementById("eret").value;
-  keys[eidx].dataDev = document.getElementById("edev").value;
+  keys[eidx].dataRet = newDataRet;
+  keys[eidx].dataDev = newDataDev;
   keys[eidx].obs = document.getElementById("eob")?.value?.trim()||"";
+
   // Status rules
   if(newCodigo && !prev.codigo && keys[eidx].status==="LIVRE") keys[eidx].status="DISPONÍVEL";
+  // DISPONÍVEL: clear dates
+  if(keys[eidx].status==="DISPONÍVEL") { keys[eidx].dataRet=""; keys[eidx].dataDev=""; }
+  // LIVRE: clear all operational (except codigo — only cleared by PDF definitivo/novo locatario)
   if(keys[eidx].status==="LIVRE") { keys[eidx].responsavel=""; keys[eidx].dataRet=""; keys[eidx].dataDev=""; keys[eidx].obs=""; }
+
   const k = keys[eidx];
   const changes = diffFields(prev, k);
-  const isRet = (prev.status==="INDISPONÍVEL"||prev.status==="NÃO LOCALIZADA")&&(k.status==="DISPONÍVEL"||k.status==="LIVRE");
-  addHist(isRet?"DEVOLUÇÃO":"EDIÇÃO", k, { prevStatus:prev.status, changes });
-  saveAll(); closeSheet("me"); renderList(); renderGer(); renderGHist();
-  // Auto email
-  const subj = `Alteração na chave ${k.loc} — ${new Date().toLocaleDateString("pt-BR")}`;
-  sendAutoEmail(subj, changes, k);
+  // Skip history if nothing changed
+  if(changes.length > 0 || prev.foto !== ephoto) {
+    addHist(isReturn?"DEVOLUÇÃO":"EDIÇÃO", k, { prevStatus:prev.status, changes });
+    saveAll(); closeSheet("me"); renderList(); renderGer(); renderGHist();
+    const subj = `Alteração na chave ${k.loc} — ${new Date().toLocaleDateString("pt-BR")}`;
+    sendAutoEmail(subj, changes, k);
+  } else {
+    saveAll(); closeSheet("me"); renderList();
+  }
   if(andPDF) setTimeout(()=>openPDF(eidx),300);
 }
 function saveAndPDF(){ saveEdit(true); }
@@ -840,6 +879,18 @@ function saveRename() {
 // ══════════════════════════════════════════
 // ADMIN — GERENCIAR
 // ══════════════════════════════════════════
+function sortKeyLoc(a, b) {
+  // Natural sort: group letter(s) first, then numeric parts
+  const parse = loc => {
+    const m = loc.match(/^([A-Za-z]+)(\d+)\.(\d+)$/);
+    if(m) return [m[1], parseInt(m[2]), parseInt(m[3])];
+    return [loc, 0, 0];
+  };
+  const [ag,an,as2]=parse(a.loc), [bg,bn,bs]=parse(b.loc);
+  if(ag!==bg) return ag.localeCompare(bg);
+  if(an!==bn) return an-bn;
+  return as2-bs;
+}
 function addKeys() {
   const raw=(document.getElementById("nki").value||"").trim();
   if(!raw){toast("Digite ao menos um código",true);return;}
@@ -850,6 +901,8 @@ function addKeys() {
     const k={id:loc+"_"+Date.now(),loc,codigo:"",status:"LIVRE",responsavel:"",dataRet:"",dataDev:"",obs:"",foto:""};
     keys.push(k); addHist("CRIAÇÃO",k); added++;
   });
+  // Sort all keys sequentially after adding
+  if(added) keys.sort(sortKeyLoc);
   saveAll(); renderList(); renderGer();
   if(added) sendAutoEmail(`${added} chave(s) adicionada(s)`, [], {loc:"Sistema", codigo:"", status:"LIVRE"});
   document.getElementById("nki").value="";
@@ -869,26 +922,56 @@ function renderGer() {
 }
 
 // HIST GERAL
-let curGHF="todos";
-function setGHF(f,btn){curGHF=f;document.querySelectorAll("#as-hist .chip").forEach(c=>c.classList.remove("active"));btn.classList.add("active");renderGHist();}
+let curGHF="todos", ghPage=4;
+// Tipos excluídos do histórico geral (automáticos/sistema)
+const HIST_EXCLUDE=["EMAIL","CRIAÇÃO"];
+function isEmptyEdit(h){ return h.tipo==="EDIÇÃO" && (!h.changes||h.changes.length===0); }
+function setGHF(f,btn){curGHF=f;ghPage=4;document.querySelectorAll("#as-hist .chip").forEach(c=>c.classList.remove("active"));btn.classList.add("active");renderGHist();}
 function renderGHist() {
   const el=document.getElementById("ghbody");
-  const filtered=hist.filter(h=>curGHF==="todos"||h.tipo===curGHF);
+  const metaEl=document.getElementById("gh-meta");
+  // Filter: exclude system types and empty edits
+  const filtered=hist.filter(h=>
+    !HIST_EXCLUDE.includes(h.tipo) &&
+    !isEmptyEdit(h) &&
+    (curGHF==="todos"||h.tipo===curGHF)
+  );
+  if(metaEl) metaEl.textContent=`${filtered.length} registros`;
   if(!filtered.length){el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/><polyline points="3 3 3 7.5 7.5 7.5"/></svg><p>Nenhuma movimentação.</p></div>`;return;}
-  const cols={SAÍDA:"var(--cr-bg)/var(--cr)",DEVOLUÇÃO:"var(--gn-bg)/var(--gn)",EDIÇÃO:"var(--bl-bg)/var(--bl)",CRIAÇÃO:"var(--pu-bg)/var(--pu)",PDF:"var(--or-bg)/var(--or)",EMAIL:"var(--gn-bg)/var(--gn)",EXCLUSÃO:"var(--cr-bg)/var(--cr)"};
-  el.innerHTML=filtered.map(h=>{
-    const[bg2,fg2]=(cols[h.tipo]||"var(--s2)/var(--tx2)").split("/");
-    const changesStr=h.changes?.length?`<div style="font-size:11px;color:var(--tx3);margin-top:3px">${h.changes.map(c=>`${c.campo}: <span style="color:var(--cr)">${c.anterior||"—"}</span> → <span style="color:var(--gn)">${c.novo||"—"}</span>`).join(" · ")}</div>`:"";
-    return`<div style="background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:10px 13px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <span style="font-family:var(--m);font-size:13px;font-weight:600">${h.loc}${h.codigo?" · "+h.codigo:""}</span>
-        <span style="font-size:11px;color:var(--tx3)">${fts(h.ts)}</span>
+  const visible=filtered.slice(0,ghPage);
+  const hasMore=filtered.length>ghPage;
+  const cols={SAÍDA:"ki-i/bi",DEVOLUÇÃO:"ki-d/bd",EDIÇÃO:"ki-l/bl2",PDF:"ki-n/bn",EXCLUSÃO:"ki-i/bi"};
+  el.innerHTML=visible.map((h,i)=>{
+    const [iconCls,bdgCls]=(cols[h.tipo]||"ki-l/bl2").split("/");
+    const sub=h.usuario?`${h.usuario}${h.responsavel?" · "+h.responsavel:""}${h.saida_tipo?" · "+h.saida_tipo:""}`:h.responsavel||bl(h.status)||"";
+    return`<div class="kcard" onclick="openHistDetail(${i},${JSON.stringify(filtered).indexOf(JSON.stringify(h))})" style="cursor:pointer" data-hidx="${hist.indexOf(h)}">
+      <div class="kicon ${iconCls}">${IK}</div>
+      <div class="kinf">
+        <div class="kloc">${h.loc}${h.codigo?" · "+h.codigo:""}</div>
+        <div class="ksub">${sub}</div>
       </div>
-      <span style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:6px;background:${bg2};color:${fg2}">${h.tipo}${h.destinatarioTipo?`<span class="htbdg ${TC[h.destinatarioTipo]||''}">${h.destinatarioTipo}</span>`:""}</span>
-      <span style="font-size:11px;color:var(--tx3);margin-left:8px">${h.usuario||""} ${h.perfil?"("+h.perfil+")":""}</span>
-      ${changesStr}
+      <span class="bdg ${bdgCls}">${HL[h.tipo]||h.tipo}</span>
+      <span style="font-size:10px;color:var(--tx3);flex-shrink:0;margin-left:4px">${fts(h.ts).split(" ")[0]}</span>
     </div>`;
-  }).join("");
+  }).join("") + (hasMore?`<button onclick="ghPage+=10;renderGHist()" style="margin:4px 0 0;padding:10px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);font-family:var(--f);font-size:13px;font-weight:500;cursor:pointer;width:100%;color:var(--tx2)">Ver mais (${filtered.length-ghPage} restantes)</button>`:"");
+}
+function openHistDetail(visIdx, rawIdx) {
+  // Find the clicked history entry
+  const filtered=hist.filter(h=>!HIST_EXCLUDE.includes(h.tipo)&&!isEmptyEdit(h)&&(curGHF==="todos"||h.tipo===curGHF));
+  const h=filtered[visIdx]; if(!h)return;
+  const cols2={SAÍDA:"var(--cr-bg)/var(--cr)",DEVOLUÇÃO:"var(--gn-bg)/var(--gn)",EDIÇÃO:"var(--bl-bg)/var(--bl)",PDF:"var(--or-bg)/var(--or)",EXCLUSÃO:"var(--cr-bg)/var(--cr)"};
+  const[bg2,fg2]=(cols2[h.tipo]||"var(--s2)/var(--tx2)").split("/");
+  const changesHTML=h.changes?.length?`<div class="fld" style="gap:6px"><label>Campos alterados</label>${h.changes.map(c=>`<div style="background:var(--s2);border-radius:8px;padding:8px 11px"><div style="font-size:11px;color:var(--tx3);margin-bottom:2px">${c.campo}</div><div style="display:flex;gap:8px;font-size:12px"><span style="color:var(--cr);text-decoration:line-through">${c.anterior||"—"}</span><span style="color:var(--tx3)">→</span><span style="color:var(--gn);font-weight:600">${c.novo||"—"}</span></div></div>`).join("")}</div>`:"";
+  document.getElementById("mk-t").textContent=`Histórico — ${h.loc}`;
+  document.getElementById("mk-b").innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${[["Chave",`<span style="font-family:var(--m);font-weight:600">${h.loc}</span>`],["Ação",`<span style="font-size:11.5px;font-weight:500;padding:3px 8px;border-radius:6px;background:${bg2};color:${fg2}">${HL[h.tipo]||h.tipo}</span>`],["Usuário",h.usuario||"—"],["Perfil",h.perfil||"—"],["Data/Hora",fts(h.ts)],["Status",bl(h.status)||"—"]].map(([l,v])=>`<div style="background:var(--s2);border-radius:8px;padding:9px 11px"><div style="font-size:10.5px;color:var(--tx3);margin-bottom:2px">${l}</div><div style="font-size:13px;font-weight:500">${v}</div></div>`).join("")}
+      ${h.responsavel?`<div style="background:var(--s2);border-radius:8px;padding:9px 11px;grid-column:1/-1"><div style="font-size:10.5px;color:var(--tx3);margin-bottom:2px">Responsável</div><div style="font-size:13px;font-weight:500">${h.responsavel}</div></div>`:""}
+      ${h.saida_tipo?`<div style="background:var(--s2);border-radius:8px;padding:9px 11px;grid-column:1/-1"><div style="font-size:10.5px;color:var(--tx3);margin-bottom:2px">Tipo de saída</div><div style="font-size:13px;font-weight:500">${h.saida_tipo}${h.dias?" · "+h.dias+" dias":""}</div></div>`:""}
+    </div>
+    ${changesHTML}`;
+  document.getElementById("mk-f").innerHTML=`<button class="bs" onclick="closeSheet('mk')">Fechar</button>`;
+  openSheet("mk");
 }
 
 // CONFIG
@@ -1092,7 +1175,7 @@ async function gerarPDF(){
     saveAll();
   }catch(e){console.error(e);toast("Erro ao gerar PDF",true);return;}
   // If definitiva/novo locatario → LIVRE
-  if(isDefinitive){ k.status="LIVRE";k.responsavel="";k.dataRet="";k.dataDev="";k.obs="";addHist("EDIÇÃO",k,{changes:[{campo:"Status",anterior:"INDISPONÍVEL",novo:"LIVRE"}]});saveAll();renderList(); }
+  if(isDefinitive){ k.status="LIVRE";k.codigo="";k.responsavel="";k.dataRet="";k.dataDev="";k.obs="";addHist("EDIÇÃO",k,{changes:[{campo:"Status",anterior:"INDISPONÍVEL",novo:"LIVRE"},{campo:"Código",anterior:k.codigo,novo:""}]});saveAll();renderList(); }
   // Auto email with PDF attached
   const changes=diffFields(prevK,isDefinitive?{...k,status:"LIVRE"}:k);
   const subj=`Comprovante PDF — Chave ${k.loc} — ${pSaida} — ${new Date().toLocaleDateString("pt-BR")}`;
@@ -1125,6 +1208,9 @@ function showTab(id,btn){
   if(id==="usuarios") renderUsers();
 }
 function showATab(id,btn){
+  // Show CSV export only for cadastro profile on cfg tab
+  const csvSec = document.getElementById('csv-section');
+  if(csvSec) csvSec.style.display = (id==='cfg' && session?.role==='cadastro') ? 'block' : 'none';
   ["ger","hist","cfg"].forEach(s=>{const el=document.getElementById("as-"+s);if(el)el.style.display="none";});
   const t=document.getElementById("as-"+id);if(t){t.style.display="flex";t.style.flexDirection="column";}
   document.querySelectorAll("#scr-admin > div:first-child .tab").forEach(t=>t.classList.remove("active"));
