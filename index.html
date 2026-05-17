@@ -36,7 +36,7 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
 .hdr::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;background:rgba(232,101,26,.15);border-radius:50%;pointer-events:none}
 .hdr::before{content:"";position:absolute;left:-20px;bottom:-20px;width:80px;height:80px;background:rgba(232,101,26,.08);border-radius:50%;pointer-events:none}
 .hdr-in{padding:12px 14px;display:flex;align-items:center;gap:11px;position:relative}
-.logo{width:44px;height:44px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo{width:44px;height:44px;background:transparent;border:none;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
 .logo svg{width:36px;height:36px}
 .hdr-txt{flex:1;min-width:0}
 .hdr-txt h1{font-size:15px;font-weight:600;color:#fff}
@@ -101,7 +101,7 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
 
 /* LOGIN */
 .lscr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:18px}
-.llogo{width:72px;height:72px;background:linear-gradient(135deg,var(--nv),var(--nv-lt));border-radius:18px;display:flex;align-items:center;justify-content:center}
+.llogo{width:72px;height:72px;background:var(--nv);border-radius:18px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .llogo svg{width:52px;height:52px}
 .ltitle{font-size:20px;font-weight:600;text-align:center}
 .lsub{font-size:13px;color:var(--tx3);text-align:center;margin-top:-10px}
@@ -248,7 +248,7 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
   <div class="hdr">
     <div class="hdr-in">
       <div class="logo">
-        <svg viewBox="0 0 44 44" fill="none"><polygon points="22,6 36,32 8,32" fill="#E8651A"/><polygon points="22,13 28.5,28 15.5,28" fill="rgba(27,46,75,0.9)"/><text x="22" y="41" font-family="Arial" font-weight="800" font-size="7.5" fill="white" text-anchor="middle" letter-spacing="1.5">ACRC</text></svg>
+        <img src="data:image/jpeg;base64,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" alt="ACRC Imóveis" style="width:32px;height:32px;object-fit:contain;border-radius:4px">
       </div>
       <div class="hdr-txt"><h1>Controle de Chaves</h1><p>ACRC Imóveis — Blumenau / SC</p></div>
       <div class="hdr-user">
@@ -281,7 +281,7 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
     <!-- LOGIN -->
     <div class="scr active" id="scr-login">
       <div class="lscr">
-        <div class="llogo"><svg viewBox="0 0 44 44" fill="none"><polygon points="22,6 36,32 8,32" fill="#E8651A"/><polygon points="22,13 28.5,28 15.5,28" fill="rgba(27,46,75,0.9)"/><text x="22" y="41" font-family="Arial" font-weight="800" font-size="7.5" fill="white" text-anchor="middle" letter-spacing="1.5">ACRC</text></svg></div>
+        <div class="llogo"><img src="data:image/jpeg;base64,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" alt="ACRC Imóveis" style="width:52px;height:52px;object-fit:contain;border-radius:10px"></div>
         <div class="ltitle">Controle de Chaves</div>
         <p class="lsub">ACRC Imóveis — Blumenau / SC</p>
         <div class="lform">
@@ -748,7 +748,9 @@ function openKey(idx) {
   const kh = hist.filter(h=>h.loc===k.loc && !['EMAIL','CRIAÇÃO'].includes(h.tipo)).slice(0,1);
   const lastEntry = kh[0];
   // Resumo: usuário + status + motivo apenas se INDISPONÍVEL
-  const histHTML = lastEntry ? `<div class="fld" style="gap:6px"><label>Última movimentação</label><div style="background:var(--s2);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:2px">${lastEntry.usuario||"—"}</div><div style="font-size:11.5px;color:var(--tx2)">${bl(lastEntry.status)||"—"}${lastEntry.status==="INDISPONÍVEL"&&lastEntry.responsavel?` · <span style="color:var(--tx3)">${lastEntry.responsavel}</span>`:""}</div></div><span style="font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0">${fts(lastEntry.ts).split(" ")[0]}</span></div></div>` : `<p style="font-size:12px;color:var(--tx3);text-align:center;padding:8px 0">Sem movimentações.</p>`;
+  const lastDevH = hist.filter(h=>h.loc===k.loc&&h.tipo==="DEVOLUÇÃO").slice(0,1)[0];
+  const devDate = lastDevH?.changes?.find(c=>c.campo==="Data devolução")?.novo || k.dataDev;
+  const histHTML = lastEntry ? `<div class="fld" style="gap:6px"><label>Última movimentação</label><div style="background:var(--s2);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:2px">${lastEntry.usuario||"—"}</div><div style="font-size:11.5px;color:var(--tx2)">${bl(lastEntry.status)||"—"}${lastEntry.status==="INDISPONÍVEL"&&lastEntry.responsavel?` · <span style="color:var(--tx3)">${lastEntry.responsavel}</span>`:""}${devDate&&lastEntry.status!=="INDISPONÍVEL"?` · <span style="color:var(--tx3)">Dev: ${fd(devDate)}</span>`:""}</div></div><span style="font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0">${fts(lastEntry.ts).split(" ")[0]}</span></div></div>` : `<p style="font-size:12px;color:var(--tx3);text-align:center;padding:8px 0">Sem movimentações.</p>`;
   document.getElementById("mk-b").innerHTML = `
     ${k.foto?`<img src="${k.foto}" style="width:100%;height:140px;object-fit:cover;border-radius:10px;border:1px solid var(--bd)">`:""} 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -787,7 +789,7 @@ function openEdit(idx) {
       <div class="fld"><label>Código imóvel</label><input id="ec" value="${k.codigo}" placeholder="Ex: 12345" autocomplete="off" ${isCorretor?"disabled":""}></div>
       <div class="fld"><label>Status</label>
         <select id="es" onchange="onStatusChange(this.value)">
-          ${SLIST.map(s=>`<option value="${s}"${k.status===s?" selected":""}${isCorretor&&s==="NÃO LOCALIZADA"?"":" "}>${bl(s)}</option>`).join("")}
+          ${(isCorretor?["DISPONÍVEL","INDISPONÍVEL","NÃO LOCALIZADA"]:SLIST).map(s=>`<option value="${s}"${k.status===s?" selected":""}>${bl(s)}</option>`).join("")}
         </select>
       </div>
     </div>
@@ -799,6 +801,8 @@ function openEdit(idx) {
     <div class="fld"><label>Observações</label><textarea id="eob" ${isCorretor?"disabled":""}>${k.obs}</textarea></div>
     ${can("genPDF")?`<button style="display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:8px;border:1.5px solid var(--or);background:var(--or-bg);font-family:var(--f);font-size:13px;font-weight:500;cursor:pointer;width:100%;color:var(--or);margin-top:4px;line-height:1.3;max-height:42px;overflow:hidden" onclick="saveAndPDF()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--or)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg> Salvar e gerar comprovante</button>`:""}`;
   openSheet("me");
+  // Apply required field highlights on open based on current status
+  setTimeout(()=>onStatusChange(keys[eidx]?.status||""),50);
 }
 function onStatusChange(val) {
   const rf = document.getElementById("resp-field");
@@ -808,9 +812,18 @@ function onStatusChange(val) {
     const eret=document.getElementById("eret"), edev=document.getElementById("edev");
     if(eret) eret.value=""; if(edev) edev.value="";
   }
-  // Make dataRet required indicator
+  // Visual highlight for required fields
   const retFld=document.getElementById("eret");
-  if(retFld) retFld.style.borderColor = val==="INDISPONÍVEL" ? "var(--or)" : "";
+  const respFld=document.getElementById("er");
+  const devFld=document.getElementById("edev");
+  const isIndisp = val==="INDISPONÍVEL";
+  // dataRet + responsável obrigatórios quando INDISPONÍVEL
+  if(retFld)  retFld.style.borderColor  = isIndisp ? "var(--or)" : "";
+  if(respFld) respFld.style.borderColor = isIndisp ? "var(--or)" : "";
+  // dataDev obrigatória ao retornar (detectado pelo status anterior)
+  const prevStatus = eidx!==null ? keys[eidx]?.status : null;
+  const isReturn = (prevStatus==="INDISPONÍVEL"||prevStatus==="NÃO LOCALIZADA") && !isIndisp;
+  if(devFld) devFld.style.borderColor = isReturn ? "var(--or)" : "";
 }
 function handlePhoto(e) {
   const file=e.target.files[0]; if(!file)return;
@@ -858,8 +871,12 @@ async function saveEdit(andPDF=false) {
   if(changes.length > 0 || prev.foto !== ephoto) {
     addHist(isReturn?"DEVOLUÇÃO":"EDIÇÃO", k, { prevStatus:prev.status, changes });
     saveAll(); closeSheet("me"); renderList(); renderGer(); renderGHist();
-    const subj = `Alteração na chave ${k.loc} — ${new Date().toLocaleDateString("pt-BR")}`;
-    sendAutoEmail(subj, changes, k);
+    // Enviar email APENAS se status foi alterado
+    const statusChanged = changes.some(c=>c.campo==="Status");
+    if(statusChanged) {
+      const subj = `Alteração de status — Chave ${k.loc}: ${bl(prev.status)} → ${bl(k.status)} — ${new Date().toLocaleDateString("pt-BR")}`;
+      sendAutoEmail(subj, changes.filter(c=>c.campo==="Status"||c.campo==="Responsável"||c.campo==="Data saída"||c.campo==="Data devolução"), k);
+    }
   } else {
     saveAll(); closeSheet("me"); renderList();
   }
@@ -880,7 +897,7 @@ function saveRename() {
   const old=keys[ridx].loc; keys[ridx].loc=val;
   addHist("EDIÇÃO",keys[ridx],{changes:[{campo:"Localização",anterior:old,novo:val}]});
   saveAll(); renderList(); renderGer();
-  sendAutoEmail(`Chave renomeada: ${old} → ${val}`, [{campo:"Localização",anterior:old,novo:val}], keys[ridx]);
+  // Renomear não dispara email (não é mudança de status)
   closeSheet("mr"); toast("Renomeado!");
 }
 
@@ -912,7 +929,7 @@ function addKeys() {
   // Sort all keys sequentially after adding
   if(added) keys.sort(sortKeyLoc);
   saveAll(); renderList(); renderGer();
-  if(added) sendAutoEmail(`${added} chave(s) adicionada(s)`, [], {loc:"Sistema", codigo:"", status:"LIVRE"});
+  // addKeys não dispara email (criação de chave não é mudança de status operacional)
   document.getElementById("nki").value="";
   toast(`${added} adicionada(s)${skipped?`, ${skipped} já existia(m)`:""}`);
 }
@@ -1008,6 +1025,8 @@ function renderKeyHistModal(idx, page) {
         <div style="font-size:11.5px;color:var(--tx2)"><span style="color:var(--tx3)">Perfil: </span>${h.perfil||"—"}</div>
         <div style="font-size:11.5px;color:var(--tx2)"><span style="color:var(--tx3)">Status: </span>${bl(h.status)||"—"}</div>
         ${h.responsavel?`<div style="font-size:11.5px;color:var(--tx2)"><span style="color:var(--tx3)">Responsável: </span>${h.responsavel}</div>`:""}
+        ${h.changes?.find(c=>c.campo==="Data devolução")?`<div style="font-size:11.5px;color:var(--tx2)"><span style="color:var(--tx3)">Data devolução: </span><b>${h.changes.find(c=>c.campo==="Data devolução").novo||"—"}</b></div>`:""}
+        ${h.changes?.find(c=>c.campo==="Data saída")?`<div style="font-size:11.5px;color:var(--tx2)"><span style="color:var(--tx3)">Data saída: </span><b>${h.changes.find(c=>c.campo==="Data saída").novo||"—"}</b></div>`:""}
       </div>
       ${changesStr}
     </div>`;
@@ -1109,7 +1128,7 @@ function doDelete(){
   if(didx===null)return;
   const k=keys[didx];
   addHist("EXCLUSÃO",k,{changes:[{campo:"Chave",anterior:k.loc,novo:"excluída"}]});
-  sendAutoEmail(`Chave excluída: ${k.loc}`, [{campo:"Chave",anterior:k.loc,novo:"excluída"}], k);
+  // Exclusão não dispara email automático
   keys.splice(didx,1);saveAll();renderList();renderGer();closeSheet("mc");toast("Excluída");didx=null;
 }
 
@@ -1235,8 +1254,10 @@ async function gerarPDF(){
   if(isDefinitive){ k.status="LIVRE";k.codigo="";k.responsavel="";k.dataRet="";k.dataDev="";k.obs="";addHist("EDIÇÃO",k,{changes:[{campo:"Status",anterior:"INDISPONÍVEL",novo:"LIVRE"},{campo:"Código",anterior:k.codigo,novo:""}]});saveAll();renderList(); }
   // Auto email with PDF attached
   const changes=diffFields(prevK,isDefinitive?{...k,status:"LIVRE"}:k);
-  const subj=`Comprovante PDF — Chave ${k.loc} — ${pSaida} — ${new Date().toLocaleDateString("pt-BR")}`;
-  sendAutoEmail(subj, changes, k, pdfBase64, pdfName);
+  // PDF sempre envia email (mudança de status real)
+  const emailChanges=[{campo:"Status",anterior:bl(prevK.status),novo:bl(k.status)},{campo:"Destinatário",anterior:"",novo:nome},{campo:"Tipo saída",anterior:"",novo:pSaida}];
+  const subj=`Saída de chave — ${k.loc} — ${pSaida} — ${new Date().toLocaleDateString("pt-BR")}`;
+  sendAutoEmail(subj, emailChanges, k, pdfBase64, pdfName);
   closeSheet("mp");
 }
 
