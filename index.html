@@ -241,6 +241,8 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
 
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty svg[style*="animation"]{stroke:var(--or);fill:none;stroke-width:2;stroke-linecap:round}
 </style>
 </head>
 <body>
@@ -508,13 +510,55 @@ body{font-family:var(--f);color:var(--tx);font-size:15px;line-height:1.5}
 // const SUPA_URL = "https://xxxx.supabase.co"
 // const SUPA_KEY = "eyJ..."
 // ══════════════════════════════════════════
-const SUPA_URL = null;
-const SUPA_KEY = null;
+const SUPA_URL = "https://mexwafrowkwcpcqxzepo.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1leHdhZnJvd2t3Y3BjcXh6ZXBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5ODMxNzMsImV4cCI6MjA5NDU1OTE3M30.kYGRYNr3ByYqXfZ7Yzy90fH79ukWY4nmi4068uX7zHw";
 
 // ══════════════════════════════════════════
-// STORAGE
+// STORAGE + SUPABASE
 // ══════════════════════════════════════════
 const SK = { k:"acrc_k6", h:"acrc_h6", c:"acrc_c6", u:"acrc_u6", ss:"acrc_ss6" };
+
+// ── Supabase REST helpers ──────────────────
+async function sbFetch(table, method="GET", body=null, query="") {
+  if(!SUPA_URL||!SUPA_KEY) return null;
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}${query}`, {
+    method,
+    headers: {
+      "apikey": SUPA_KEY,
+      "Authorization": `Bearer ${SUPA_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": method==="POST" ? "resolution=merge-duplicates,return=minimal" : "return=minimal"
+    },
+    body: body ? JSON.stringify(body) : null
+  });
+  if(method==="GET" && res.ok) return res.json();
+  return res.ok;
+}
+
+// key obj → supabase row
+function keyToRow(k) {
+  return { id:k.id, loc:k.loc, codigo:k.codigo||"", status:k.status||"LIVRE",
+    responsavel:k.responsavel||"", data_ret:k.dataRet||"", data_dev:k.dataDev||"",
+    obs:k.obs||"", foto:k.foto||"", updated_at: new Date().toISOString() };
+}
+function rowToKey(r) {
+  return { id:r.id, loc:r.loc, codigo:r.codigo||"", status:r.status||"LIVRE",
+    responsavel:r.responsavel||"", dataRet:r.data_ret||"", dataDev:r.data_dev||"",
+    obs:r.obs||"", foto:r.foto||"" };
+}
+function histToRow(h) {
+  return { id:h.id, tipo:h.tipo, loc:h.loc||"", codigo:h.codigo||"",
+    responsavel:h.responsavel||"", status:h.status||"",
+    ts: h.ts||new Date().toISOString(),
+    usuario:h.usuario||"", perfil:h.perfil||"",
+    changes: h.changes||[], extra: {} };
+}
+function userToRow(u) {
+  return { id:u.id, name:u.name, user_login:u.user, pass:u.pass, role:u.role };
+}
+function rowToUser(r) {
+  return { id:r.id, name:r.name, user:r.user_login, pass:r.pass, role:r.role };
+}
 const GRUPOS = ["A","B","C","D","LOC","TEMP","DESOC","VEN"];
 const BASE = ["1.1","1.2","1.3","1.4","1.5","2.1","2.2","2.3","2.4","2.5","3.1","3.2","3.3","3.4","3.5","4.1","4.2","4.3","4.4","4.5"];
 const EXTRAS = { TEMP:["5.1","5.2","5.3","5.4","5.5"], DESOC:["5.1","5.2","5.3","5.4","5.5","6.1","6.2","6.3","6.4","6.5","7.1","7.2","7.3","7.4","7.5"] };
@@ -556,23 +600,95 @@ function load() {
   const ss = sessionStorage.getItem(SK.ss);
   if(ss) { try { session = JSON.parse(ss); } catch(e) {} }
 }
+
+// Load from Supabase (async, called after login)
+async function loadFromSupabase() {
+  if(!SUPA_URL||!SUPA_KEY) return;
+  try {
+    // Keys
+    const kRows = await sbFetch("keys","GET",null,"?select=*&order=loc.asc");
+    if(kRows&&kRows.length) {
+      keys = kRows.map(rowToKey);
+      localStorage.setItem(SK.k, JSON.stringify(keys));
+    } else if(kRows&&kRows.length===0) {
+      // First time: push default keys to Supabase
+      await syncKeysToSupabase(keys);
+    }
+    // History (last 500)
+    const hRows = await sbFetch("history","GET",null,"?select=*&order=ts.desc&limit=500");
+    if(hRows&&hRows.length) {
+      hist = hRows.map(r=>({...r, changes:r.changes||[], ts:r.ts}));
+      localStorage.setItem(SK.h, JSON.stringify(hist));
+    }
+    // Users
+    const uRows = await sbFetch("users","GET",null,"?select=*");
+    if(uRows&&uRows.length) {
+      users = uRows.map(rowToUser);
+      localStorage.setItem(SK.u, JSON.stringify(users));
+    } else if(uRows&&uRows.length===0) {
+      // First time: push default users
+      for(const u of users) await sbFetch("users","POST",[userToRow(u)]);
+    }
+  } catch(e) {
+    console.warn("[Supabase load]", e.message);
+  }
+}
+
+async function syncKeysToSupabase(ks) {
+  if(!SUPA_URL||!SUPA_KEY||!ks.length) return;
+  // Batch upsert in chunks of 50
+  for(let i=0;i<ks.length;i+=50) {
+    await sbFetch("keys","POST", ks.slice(i,i+50).map(keyToRow));
+  }
+}
 function saveAll() {
+  // Always save locally first (instant, offline-safe)
   try {
     localStorage.setItem(SK.k, JSON.stringify(keys));
     localStorage.setItem(SK.h, JSON.stringify(hist));
     localStorage.setItem(SK.c, JSON.stringify(cfg));
     localStorage.setItem(SK.u, JSON.stringify(users));
-  } catch(e) { toast("Erro ao salvar localmente",true); }
+  } catch(e) { console.warn("localStorage error", e); }
+}
+
+// Save a single key to Supabase (fire-and-forget)
+function syncKey(k) {
+  if(!SUPA_URL||!SUPA_KEY) return;
+  sbFetch("keys","POST",[keyToRow(k)]).catch(e=>console.warn("[sync key]",e.message));
+}
+
+// Save a single history entry to Supabase (fire-and-forget)
+function syncHist(h) {
+  if(!SUPA_URL||!SUPA_KEY) return;
+  sbFetch("history","POST",[histToRow(h)]).catch(e=>console.warn("[sync hist]",e.message));
+}
+
+// Delete a key from Supabase
+function deleteKey(id) {
+  if(!SUPA_URL||!SUPA_KEY) return;
+  sbFetch("keys","DELETE",null,`?id=eq.${id}`).catch(e=>console.warn("[del key]",e.message));
+}
+
+// Save users to Supabase
+function syncUser(u) {
+  if(!SUPA_URL||!SUPA_KEY) return;
+  sbFetch("users","POST",[userToRow(u)]).catch(e=>console.warn("[sync user]",e.message));
+}
+function removeUser(id) {
+  if(!SUPA_URL||!SUPA_KEY) return;
+  sbFetch("users","DELETE",null,`?id=eq.${id}`).catch(e=>console.warn("[del user]",e.message));
 }
 function addHist(tipo, k, extra={}) {
-  hist.unshift({
-    id: Date.now(), tipo, loc: k.loc, codigo: k.codigo,
-    responsavel: k.responsavel, status: k.status,
+  const entry = {
+    id: Date.now(), tipo, loc: k.loc, codigo: k.codigo||"",
+    responsavel: k.responsavel||"", status: k.status||"",
     ts: new Date().toISOString(),
     usuario: session?.name||"—", perfil: session?.role||"—",
     ...extra
-  });
+  };
+  hist.unshift(entry);
   if(hist.length > 2000) hist.length = 2000;
+  syncHist(entry); // Supabase async
 }
 
 // ══════════════════════════════════════════
@@ -627,7 +743,7 @@ function doLogout() {
   document.getElementById("lerr").classList.remove("show");
   switchScreen("login");
 }
-function initApp() {
+async function initApp() {
   // Header
   document.getElementById("tabs").style.display="flex";
   document.getElementById("user-chip").style.display="flex";
@@ -643,6 +759,9 @@ function initApp() {
   document.querySelectorAll(".tabs .tab").forEach(t=>t.classList.remove("active"));
   document.getElementById("tab-chaves").classList.add("active");
   switchScreen("chaves");
+  // Show loading, then load from Supabase
+  document.getElementById("klist").innerHTML='<div class="empty"><svg viewBox="0 0 24 24" style="animation:spin 1s linear infinite;stroke:var(--or);fill:none;stroke-width:2;stroke-linecap:round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg><p style="margin-top:8px">Sincronizando...</p></div>';
+  await loadFromSupabase();
   renderList();
   if(can("viewAdmin")) { renderGer(); renderGHist(); document.getElementById("ce").value=cfg.emailDest||""; }
   if(can("manageUsers")) renderUsers();
@@ -870,8 +989,8 @@ async function saveEdit(andPDF=false) {
   // Skip history if nothing changed
   if(changes.length > 0 || prev.foto !== ephoto) {
     addHist(isReturn?"DEVOLUÇÃO":"EDIÇÃO", k, { prevStatus:prev.status, changes });
-    saveAll(); closeSheet("me"); renderList(); renderGer(); renderGHist();
-    // Enviar email APENAS se status foi alterado
+    saveAll(); syncKey(k); // Supabase sync
+    closeSheet("me"); renderList(); renderGer(); renderGHist();
     const statusChanged = changes.some(c=>c.campo==="Status");
     if(statusChanged) {
       const subj = `Alteração de status — Chave ${k.loc}: ${bl(prev.status)} → ${bl(k.status)} — ${new Date().toLocaleDateString("pt-BR")}`;
@@ -896,8 +1015,8 @@ function saveRename() {
   if(keys.find((k,i)=>k.loc===val&&i!==ridx)){toast("Código já existe",true);return;}
   const old=keys[ridx].loc; keys[ridx].loc=val;
   addHist("EDIÇÃO",keys[ridx],{changes:[{campo:"Localização",anterior:old,novo:val}]});
-  saveAll(); renderList(); renderGer();
-  // Renomear não dispara email (não é mudança de status)
+  saveAll(); syncKey(keys[ridx]);
+  renderList(); renderGer();
   closeSheet("mr"); toast("Renomeado!");
 }
 
@@ -927,9 +1046,13 @@ function addKeys() {
     keys.push(k); addHist("CRIAÇÃO",k); added++;
   });
   // Sort all keys sequentially after adding
-  if(added) keys.sort(sortKeyLoc);
+  if(added) {
+    keys.sort(sortKeyLoc);
+    // Sync new keys to Supabase
+    const newKeys = keys.filter(k=>lines.includes(k.loc));
+    if(SUPA_URL&&SUPA_KEY) syncKeysToSupabase(newKeys);
+  }
   saveAll(); renderList(); renderGer();
-  // addKeys não dispara email (criação de chave não é mudança de status operacional)
   document.getElementById("nki").value="";
   toast(`${added} adicionada(s)${skipped?`, ${skipped} já existia(m)`:""}`);
 }
@@ -1085,7 +1208,8 @@ function addUser(){
   const r=document.getElementById("ur").value;
   if(!n||!u||!p){toast("Preencha todos os campos",true);return;}
   if(users.find(x=>x.user===u)){toast("Nome de usuário já existe",true);return;}
-  users.push({id:"u_"+Date.now(),name:n,user:u,pass:p,role:r});
+  const newU={id:"u_"+Date.now(),name:n,user:u,pass:p,role:r};
+  users.push(newU); syncUser(newU);
   saveAll();renderUsers();
   document.getElementById("un").value="";document.getElementById("uu").value="";document.getElementById("up").value="";
   toast("Usuário adicionado!");
@@ -1107,7 +1231,7 @@ function saveUser(){
   const np=document.getElementById("eu-p").value.trim();
   if(np) u.pass=np;
   u.role=document.getElementById("eu-r").value;
-  saveAll();renderUsers();closeSheet("meu");toast("Usuário atualizado!");
+  syncUser(users[editUserIdx]); saveAll();renderUsers();closeSheet("meu");toast("Usuário atualizado!");
 }
 let delUserIdx=null;
 function confirmDelUser(idx){
@@ -1118,7 +1242,7 @@ function confirmDelUser(idx){
 }
 function doDeleteUser(){
   if(delUserIdx===null)return;
-  users.splice(delUserIdx,1);saveAll();renderUsers();closeSheet("mc");toast("Usuário excluído");delUserIdx=null;
+  removeUser(users[delUserIdx].id); users.splice(delUserIdx,1);saveAll();renderUsers();closeSheet("mc");toast("Usuário excluído");delUserIdx=null;
 }
 
 // DELETE KEY
@@ -1128,7 +1252,7 @@ function doDelete(){
   if(didx===null)return;
   const k=keys[didx];
   addHist("EXCLUSÃO",k,{changes:[{campo:"Chave",anterior:k.loc,novo:"excluída"}]});
-  // Exclusão não dispara email automático
+  deleteKey(k.id); // Supabase delete
   keys.splice(didx,1);saveAll();renderList();renderGer();closeSheet("mc");toast("Excluída");didx=null;
 }
 
@@ -1197,7 +1321,7 @@ async function gerarPDF(){
   // Definitiva / Novo locatário → LIVRE after PDF
   const isDefinitive = pSaida==="DEFINITIVA"||pSaida==="NOVO LOCATÁRIO";
   addHist("SAÍDA",k,{destinatarioTipo:pTipo,saida_tipo:pSaida,dias:pSaida==="TEMPORÁRIA"?dias:null,usuario:session?.name,perfil:session?.role});
-  saveAll(); renderList(); renderGer(); renderGHist();
+  saveAll(); syncKey(keys[pidx]); renderList(); renderGer(); renderGHist();
   // Build PDF
   let pdfBase64=null, pdfName=null;
   try{
@@ -1251,7 +1375,7 @@ async function gerarPDF(){
     saveAll();
   }catch(e){console.error(e);toast("Erro ao gerar PDF",true);return;}
   // If definitiva/novo locatario → LIVRE
-  if(isDefinitive){ k.status="LIVRE";k.codigo="";k.responsavel="";k.dataRet="";k.dataDev="";k.obs="";addHist("EDIÇÃO",k,{changes:[{campo:"Status",anterior:"INDISPONÍVEL",novo:"LIVRE"},{campo:"Código",anterior:k.codigo,novo:""}]});saveAll();renderList(); }
+  if(isDefinitive){ k.status="LIVRE";k.codigo="";k.responsavel="";k.dataRet="";k.dataDev="";k.obs="";addHist("EDIÇÃO",k,{changes:[{campo:"Status",anterior:"INDISPONÍVEL",novo:"LIVRE"},{campo:"Código",anterior:k.codigo,novo:""}]});saveAll();syncKey(k);renderList(); }
   // Auto email with PDF attached
   const changes=diffFields(prevK,isDefinitive?{...k,status:"LIVRE"}:k);
   // PDF sempre envia email (mudança de status real)
@@ -1313,7 +1437,7 @@ function toast(msg,err=false){const el=document.getElementById("toast");document
 // INIT
 // ══════════════════════════════════════════
 load();
-if(session){ initApp(); } 
+if(session){ initApp(); }
 // else: login screen is shown by default
 </script>
 </body>
